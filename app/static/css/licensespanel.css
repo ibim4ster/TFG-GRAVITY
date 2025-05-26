@@ -1,0 +1,387 @@
+/* Base styles for license panel */
+.license-panel {
+  padding: 20px;
+  background-color: #121212;
+  color: white;
+  min-height: calc(100vh - 80px);
+}
+
+.license-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.license-header h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #f5f5f5;
+  margin: 0;
+}
+
+.license-header h2 i {
+  margin-right: 10px;
+  color: #00c853;
+}
+
+.search-create-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.search-container {
+  flex: 1;
+  position: relative;
+  max-width: 350px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 15px;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #00c853;
+  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
+}
+
+.btn-create {
+  padding: 8px 16px;
+  background: #00c853;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.btn-create:hover {
+  background: #009624;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.license-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.license-table-container {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+
+th {
+  background: #2d2d2d;
+  font-weight: 600;
+  color: #b0b0b0;
+}
+
+tr:hover {
+  background-color: #2a2a2a;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.btn-edit {
+  padding: 5px 10px;
+  background: #1e90ff;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.3s;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-edit:hover {
+  background: #0066cc;
+}
+
+/* Estados de licencia */
+.status-active {
+  color: #00e676;
+  padding: 4px 10px;
+  background: rgba(0, 230, 118, 0.15);
+  border-radius: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-stock {
+  color: #2196f3;
+  padding: 4px 10px;
+  background: rgba(33, 150, 243, 0.15);
+  border-radius: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-suspended {
+  color: #ffeb3b;
+  padding: 4px 10px;
+  background: rgba(255, 235, 59, 0.15);
+  border-radius: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-expired {
+  color: #ff4d4f;
+  padding: 4px 10px;
+  background: rgba(255, 77, 79, 0.15);
+  border-radius: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.btn-delete {
+  padding: 5px 10px;
+  background: #ff5252;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-delete:hover {
+  background: #c62828;
+}
+
+.license-type {
+  font-weight: 500;
+}
+
+.license-code {
+  font-family: monospace;
+  font-size: 0.9em;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.empty-state i {
+  font-size: 3em;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.empty-state p {
+  font-size: 1.1em;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .license-panel {
+    padding: 15px;
+  }
+  
+  .license-header h2 {
+    font-size: 1.6rem;
+  }
+  
+  .btn-edit, .btn-delete {
+    padding: 8px 12px;
+    margin-bottom: 5px;
+  }
+  
+  th, td {
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-create-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .search-container {
+    max-width: 100%;
+  }
+  
+  .btn-create {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .license-header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  
+  .license-header h2 {
+    margin-bottom: 10px;
+  }
+  
+  .license-table {
+    font-size: 0.95rem;
+  }
+  
+  th, td {
+    padding: 8px 10px;
+  }
+  
+  .status-active, .status-stock, .status-suspended, .status-expired {
+    padding: 3px 6px;
+    font-size: 0.85rem;
+  }
+  
+  .btn-edit, .btn-delete {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    margin: 3px 0;
+    display: inline-block;
+    width: calc(50% - 4px);
+    box-sizing: border-box;
+    text-align: center;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .license-panel {
+    padding: 10px;
+  }
+  
+  .license-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .search-input {
+    padding: 8px 12px;
+  }
+  
+  .license-table {
+    font-size: 0.85rem;
+  }
+  
+  th, td {
+    padding: 8px 6px;
+  }
+  
+td:nth-child(6), th:nth-child(6), /* Start date */
+td:nth-child(7), th:nth-child(7) { /* End date */
+  display: none;
+}
+  
+  .btn-edit, .btn-delete {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    display: block;
+    width: 100%;
+    margin: 4px 0;
+  }
+  
+  .status-active, .status-stock, .status-suspended, .status-expired {
+    padding: 2px 5px;
+    font-size: 0.8rem;
+  }
+  
+  .empty-state {
+    padding: 25px 15px;
+  }
+  
+  .empty-state i {
+    font-size: 2.5em;
+  }
+  
+  .empty-state p {
+    font-size: 1em;
+  }
+}
+
+/* Fix for small screens in landscape mode */
+@media (max-height: 500px) and (orientation: landscape) {
+  .license-panel {
+    padding: 10px;
+  }
+  
+  .license-header h2 {
+    font-size: 1.4rem;
+  }
+  
+  .btn-create {
+    padding: 6px 12px;
+  }
+  
+  .empty-state {
+    padding: 20px 15px;
+  }
+}
+
+/* Animation for success/error messages */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message {
+  animation: fadeIn 0.3s ease-out;
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.success-message {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+}
+
+.error-message {
+  background: rgba(255, 77, 79, 0.15);
+  color: #ff4d4f;
+}
+
+/* Hover effects */
+.btn-create:active,
+.btn-edit:active,
+.btn-delete:active {
+  transform: translateY(1px);
+}

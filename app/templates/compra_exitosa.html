@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compra Exitosa | Gravity</title>
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='test.png') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compra_exitosa.css') }}">
+</head>
+
+<body>
+    <div class="success-container">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h1>¡Compra Exitosa!</h1>
+        <p>Tu licencia ha sido activada correctamente. Ahora puedes disfrutar de todas las funcionalidades disponibles.
+        </p>
+        <a href="{{ url_for('main.dashboard') }}" class="btn">
+            <i class="fas fa-home"></i> Volver al Panel de Control
+        </a>
+    </div>
+</body>
+
+</html>

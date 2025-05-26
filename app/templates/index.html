@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Búsqueda de Información</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+
+</head>
+
+<body>
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <div class="container">
+      <h1>Búsqueda de Información</h1>
+      <form action="{{ url_for('search.buscar') }}" method="post" id="search-form" onsubmit="showSpinner()">
+        criterio de búsqueda:</label>
+        <select name="criterio" id="criterio" required>
+          <option value="Teléfono">Número de Teléfono</option>
+          <option value="Facebook ID">ID de Facebook</option>
+          <option value="Nombre">Nombre</option>
+          <option value="Apellido">Apellido</option>
+          <option value="Ciudad/Pais">Ciudad</option>
+        </select>
+        <label for="termino">Introduce el término de búsqueda:</label>
+        <input type="text" id="termino" name="termino" required />
+        <button type="submit">Buscar</button>
+      </form>
+      <div id="spinner"></div>
+      <!-- Spinner de carga -->
+      <div class="footer">
+        <p>Desarrollado por Ibai Gallego</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showSpinner() {
+      const spinner = document.getElementById("spinner");
+      spinner.style.display = "block"; // Muestra el spinner
+    }
+  </script>
+</body>
+
+</html>

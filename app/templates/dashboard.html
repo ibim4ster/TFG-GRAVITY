@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | Gravity</title>
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=AdpjRg5ECfhso6v2KbOsKg1MVsEj3hVW_-ccmm3z9zaQzLGZJhsaUTCiac1VQO1j9-R5O_U_ggAgqvpU&currency=USD"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <!-- Preload common CSS files to prevent FOUC -->
+  <link rel="preload" href="{{ url_for('static', filename='css/dashboard_content.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/comprar_content.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/configuracion_content.css') }}" as="style">
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='test.png') }}" />
+</head>
+
+<body>
+  <!-- Mobile menu toggle button -->
+  <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <div class="sidebar" id="sidebar">
+    <h2 onclick="toggleSidebar()">&#9776;</h2>
+    <div id="dropdownMenu">
+      <a href="#" onclick="loadContent('dashboard', this); toggleMobileMenu();">
+        <i class="fas fa-home"></i> <span>Inicio</span>
+      </a>
+      <a href="#" onclick="loadContent('comprar', this); toggleMobileMenu();">
+        <i class="fas fa-shopping-cart"></i> <span>Comprar</span>
+      </a>
+      {% set tiene_licencia = Licencia.query.filter_by(usuario_id=current_user.id, estado='Activa').first() %}
+      {% if tiene_licencia %}
+      <a href="#" onclick="loadContent('buscar', this); toggleMobileMenu();">
+        <i class="fas fa-search"></i> <span>Búsqueda</span>
+      </a>
+      <a href="#" onclick="loadContent('sherlock', this); toggleMobileMenu();">
+        <i class="fas fa-user-secret"></i> <span>Sherlock</span>
+      </a>
+      {% endif %}
+      {% if current_user.rol == 'Admin' %}
+      <a href="#" onclick="loadContent('licensespanel', this); toggleMobileMenu();">
+        <i class="fas fa-key"></i> <span>Licencias</span>
+      </a>
+      <a href="#" onclick="loadContent('adminpanel', this); toggleMobileMenu();">
+        <i class="fas fa-user-shield"></i> <span>Admin Panel</span>
+      </a>
+      {% endif %}
+      <a href="#" onclick="loadContent('configuracion', this); toggleMobileMenu();">
+        <i class="fas fa-cog"></i> <span>Configuración</span>
+      </a>
+    </div>
+    <button class="logout-btn" onclick="openLogoutModal()">
+      Cerrar sesión
+    </button>
+  </div>
+
+  <div class="content loading" id="content">
+    <!-- Aquí se cargará el contenido -->
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <h2>¿Estás seguro de que quieres cerrar sesión?</h2>
+      <div class="modal-buttons">
+        <button class="confirm-btn" onclick="confirmLogout()">
+          Sí, cerrar sesión
+        </button>
+        <button class="cancel-btn" onclick="closeLogoutModal()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Add this near the end of your body tag in dashboard.html -->
+  {% include 'componentes/chatbot_flotante.html' %}
+
+  <!-- Add these in the head section -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot_flotante.css') }}">
+  <script src="{{ url_for('static', filename='js/chatbot_flotante.js') }}" defer></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Set initial loading state
+      const contentArea = document.getElementById("content");
+      contentArea.classList.add("loading");
+
+      // Mobile menu toggle setup
+      document.getElementById("mobileMenuToggle").addEventListener("click", toggleMobileMenu);
+
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener("click", function (event) {
+        const sidebar = document.getElementById("sidebar");
+        const mobileToggle = document.getElementById("mobileMenuToggle");
+
+        if (window.innerWidth <= 768 &&
+          sidebar.classList.contains("mobile-active") &&
+          !sidebar.contains(event.target) &&
+          event.target !== mobileToggle) {
+          sidebar.classList.remove("mobile-active");
+        }
+      });
+
+      // Handle window resize
+      window.addEventListener("resize", function () {
+        const sidebar = document.getElementById("sidebar");
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove("mobile-active");
+        }
+      });
+
+      // Load default content
+      loadContent("dashboard", document.querySelector(".sidebar a"));
+    });
+
+    function toggleMobileMenu() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("mobile-active");
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const content = document.getElementById("content");
+
+      if (window.innerWidth <= 768) {
+        // On mobile, toggle the mobile menu
+        toggleMobileMenu();
+      } else {
+        // On desktop, collapse/expand sidebar
+        sidebar.classList.toggle("collapsed");
+        content.classList.toggle("collapsed");
+      }
+    }
+
+    function loadContent(section, element = null) {
+      let contentArea = document.getElementById("content");
+
+      // Add loading state immediately
+      contentArea.classList.add("loading");
+
+      // Verificar si la sección ya está activa
+      if (element && element.classList.contains("active")) {
+        contentArea.classList.remove("loading"); // Remove loading if no change
+        return; // Si ya está activa, no hacer nada
+      }
+
+      // Remover clase activa de todas las opciones
+      document.querySelectorAll(".sidebar a").forEach((link) => {
+        link.classList.remove("active");
+      });
+
+      if (element) {
+        // Agregar clase activa solo a la opción seleccionada
+        element.classList.add("active");
+      }
+
+      // Agregar clase de animación de salida
+      contentArea.classList.add("slide-out-up-animation");
+
+      fetch(`/get_content/${section}`)
+        .then((response) => {
+          if (!response.ok) throw new Error("Error al cargar contenido");
+          return response.text();
+        })
+        .then((data) => {
+          setTimeout(() => {
+            contentArea.classList.remove("slide-out-up-animation");
+            contentArea.innerHTML = data;
+
+            // Make tables responsive by wrapping them
+            const tables = contentArea.querySelectorAll('table');
+            tables.forEach(table => {
+              if (!table.closest('.table-responsive')) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'table-responsive';
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+              }
+            });
+
+            // Animación de entrada
+            contentArea.classList.add("slide-in-down-animation");
+
+            if (section === "adminpanel") {
+              initSearch();
+            }
+
+            if (section === "licensespanel") {
+              initLicenseSearch();
+            }
+
+            // --- ACTIVAR EVENTOS DE EDITAR USUARIO ---
+            if (section.startsWith("edit_user/")) {
+              activarEventosEditUser();
+            }
+
+            // Renderizar botones PayPal si es la sección de compra
+            if (section === "comprar") {
+              renderPayPalButtons();
+            }
+
+            // Keep content hidden until styles are applied
+            setTimeout(() => {
+              contentArea.classList.remove("loading");
+              contentArea.classList.remove("slide-in-down-animation");
+            }, 300); // Delay to ensure CSS is applied
+
+          }, 200);
+        })
+        .catch((error) => {
+          console.error("Error al cargar contenido:", error);
+          contentArea.classList.remove("loading");
+          contentArea.classList.remove("slide-out-up-animation");
+          contentArea.innerHTML = "<p>Error al cargar el contenido.</p>";
+        });
+    }
+
+    // Función para renderizar los botones de PayPal
+    function renderPayPalButtons() {
+      if (document.getElementById('paypal-button-container-mensual')) {
+        paypal.Buttons({
+          style: { layout: 'vertical', color: 'silver', shape: 'pill', label: 'paypal' },
+          createOrder: function (data, actions) {
+            return actions.order.create({
+              purchase_units: [{
+                amount: { value: '9.99' },
+                description: 'Licencia Mensual'
+              }]
+            });
+          },
+          onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+              // Extraer información importante de la transacción
+              const transactionId = details.purchase_units[0].payments.captures[0].id;
+              const orderId = data.orderID;
+              const amount = details.purchase_units[0].amount.value;
+
+              activarLicencia('Mensual', orderId, transactionId, amount);
+            });
+          }
+        }).render('#paypal-button-container-mensual');
+      }
+
+      // Botón para licencia anual
+      if (document.getElementById('paypal-button-container-anual')) {
+        paypal.Buttons({
+          style: { layout: 'vertical', color: 'blue', shape: 'pill', label: 'paypal' },
+          createOrder: function (data, actions) {
+            return actions.order.create({
+              purchase_units: [{
+                amount: { value: '99.99' },
+                description: 'Licencia Anual'
+              }]
+            });
+          },
+          onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+              // Extraer información importante de la transacción
+              const transactionId = details.purchase_units[0].payments.captures[0].id;
+              const orderId = data.orderID;
+              const amount = details.purchase_units[0].amount.value;
+
+              activarLicencia('Anual', orderId, transactionId, amount);
+            });
+          }
+        }).render('#paypal-button-container-anual');
+      }
+
+      if (document.getElementById('paypal-button-container-permanente')) {
+        paypal.Buttons({
+          style: { layout: 'vertical', color: 'gold', shape: 'pill', label: 'paypal' },
+          createOrder: function (data, actions) {
+            return actions.order.create({
+              purchase_units: [{
+                amount: { value: '299.99' },
+                description: 'Licencia Permanente'
+              }]
+            });
+          },
+          onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+              // Extraer información importante de la transacción
+              const transactionId = details.purchase_units[0].payments.captures[0].id;
+              const orderId = data.orderID;
+              const amount = details.purchase_units[0].amount.value;
+
+              activarLicencia('Permanente', orderId, transactionId, amount);
+            });
+          }
+        }).render('#paypal-button-container-permanente');
+      }
+    }
+
+    function activarLicencia(tipo, order_id, transaction_id, amount) {
+      console.log("Activando licencia:", tipo, "Order ID:", order_id, "Transaction ID:", transaction_id, "Amount:", amount);
+
+      fetch('/licenses/activate_paypal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tipo: tipo,
+          order_id: order_id,
+          transaction_id: transaction_id,
+          amount: amount
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = "/licenses/compra_exitosa";
+          } else {
+            alert("Error al activar la licencia: " + (data.error || "Desconocido"));
+          }
+        })
+        .catch(error => {
+          console.error("Error en la activación de licencia:", error);
+          alert("Error al procesar el pago. Por favor, inténtalo de nuevo.");
+        });
+    }
+
+    // Funciones para el modal de cierre de sesión
+    function openLogoutModal() {
+      document.getElementById("logoutModal").style.display = "block";
+    }
+
+    function closeLogoutModal() {
+      document.getElementById("logoutModal").style.display = "none";
+    }
+
+    function confirmLogout() {
+      window.location.href = "/logout";
+    }
+
+    function initSearch() {
+      const searchInput = document.getElementById("searchInput");
+      const table = document.getElementById("userTable");
+
+      searchInput.addEventListener("input", function () {
+        const filter = searchInput.value.toLowerCase();
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+          const cells = rows[i].getElementsByTagName("td");
+          let found = false;
+
+          for (let j = 0; j < cells.length; j++) {
+            if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
+              found = true;
+              break;
+            }
+          }
+
+          rows[i].style.display = found ? "" : "none";
+        }
+      });
+    }
+
+    // Manejar la eliminación de usuario
+    document.addEventListener("click", function (event) {
+      if (event.target.matches("#deleteUser")) {
+        const userId = event.target.dataset.userId;
+        if (!userId) {
+          console.error("El atributo data-user-id no está definido.");
+          return;
+        }
+
+        if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
+          fetch(`/admin/delete_user/${userId}`, {
+            method: "DELETE",
+          })
+            .then((response) => {
+              if (!response.ok)
+                throw new Error("Error al eliminar el usuario.");
+              return response.json();
+            })
+            .then((data) => {
+              if (data.success) {
+                loadContent(
+                  "adminpanel",
+                  document.querySelector('.sidebar a[href*="adminpanel"]')
+                );
+              } else {
+                alert("Error al eliminar el usuario: " + data.error);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Hubo un problema al intentar eliminar el usuario.");
+            });
+        }
+      }
+    });
+
+    // Maneja el envío del formulario de edición de usuario
+    document.addEventListener("submit", function (event) {
+      if (event.target.matches("#editUserForm")) {
+        event.preventDefault();
+
+        const userId = event.target.dataset.userId;
+        const formData = new FormData(event.target);
+
+        fetch(`/admin/update_user/${userId}`, {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              loadContent(
+                "adminpanel",
+                document.querySelector('.sidebar a[href*="adminpanel"]')
+              );
+            } else {
+              alert(
+                "Error al actualizar el usuario: " +
+                (data.error || "Error desconocido")
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Hubo un problema al intentar guardar los cambios.");
+          });
+      }
+    });
+
+    // --- ACTIVAR EVENTOS DE ASIGNAR LICENCIA ---
+    function activarEventosEditUser() {
+      // Asignar licencia
+      const assignBtn = document.getElementById('assignLicenseBtn');
+      if (assignBtn) {
+        assignBtn.addEventListener('click', function () {
+          const userId = document.getElementById('editUserForm').dataset.userId;
+          const tipo = document.getElementById('license_type').value;
+          const fechaFin = document.getElementById('license_end').value;
+
+          if (!tipo) {
+            alert('Selecciona un tipo de licencia.');
+            return;
+          }
+          if (tipo !== 'Permanente' && !fechaFin) {
+            alert('Debes indicar la fecha de fin para licencias no permanentes.');
+            return;
+          }
+
+          fetch(`/licenses/assign/${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tipo: tipo, fecha_fin: fechaFin })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                loadContent('edit_user/' + userId);
+              } else {
+                alert('Error: ' + (data.error || 'No se pudo asignar la licencia.'));
+              }
+            })
+            .catch(error => {
+              alert('Error al asignar licencia.');
+            });
+        });
+
+        // Habilitar/deshabilitar fecha fin según tipo
+        document.getElementById('license_type').addEventListener('change', function () {
+          document.getElementById('license_end').disabled = (this.value === 'Permanente');
+          if (this.value === 'Permanente') {
+            document.getElementById('license_end').value = '';
+          }
+        });
+      }
+
+      // Quitar licencia activa
+      const revokeBtn = document.getElementById('revokeLicenseBtn');
+      if (revokeBtn) {
+        revokeBtn.addEventListener('click', function () {
+          const userId = document.getElementById('editUserForm').dataset.userId;
+          if (confirm("¿Seguro que quieres quitar la licencia activa?")) {
+            fetch(`/licenses/revoke/${userId}`, {
+              method: 'POST'
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  loadContent('edit_user/' + userId);
+                } else {
+                  alert('Error: ' + (data.error || 'No se pudo revocar la licencia.'));
+                }
+              })
+              .catch(error => {
+                alert('Error al revocar licencia.');
+              });
+          }
+        });
+      }
+    }
+
+    // Manejar el envío del formulario de edición de licencia
+    document.addEventListener("submit", function (event) {
+      if (event.target.matches("#editLicenseForm")) {
+        event.preventDefault();
+        const licenseId = event.target.dataset.licenseId;
+        const formData = new FormData(event.target);
+
+        fetch(`/licenses/update/${licenseId}`, {
+          method: "POST",
+          body: formData
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              loadContent(
+                "licensespanel",
+                document.querySelector('.sidebar a[href*="licensespanel"]')
+              );
+            } else {
+              alert(
+                "Error al actualizar la licencia: " +
+                (data.error || "Error desconocido")
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Hubo un problema al intentar guardar los cambios.");
+          });
+      }
+    });
+
+    // Manejar la eliminación de licencia desde el botón deleteLicenseBtn
+    document.addEventListener("click", function (event) {
+      if (event.target.matches("#deleteLicenseBtn")) {
+        const licenseId = event.target.dataset.licenseId;
+        if (!licenseId) {
+          console.error("El atributo data-license-id no está definido.");
+          return;
+        }
+
+        if (confirm("¿Estás seguro de que deseas eliminar esta licencia?")) {
+          fetch(`/licenses/delete/${licenseId}`, {
+            method: "POST",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                loadContent(
+                  "licensespanel",
+                  document.querySelector('.sidebar a[href*="licensespanel"]')
+                );
+              } else {
+                alert("Error al eliminar la licencia: " + data.error);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Hubo un problema al intentar eliminar la licencia.");
+            });
+        }
+      }
+    });
+
+    // Eliminar licencia desde licesespanel.html usando btn-delete
+    document.addEventListener("click", function (event) {
+      if (event.target.matches(".btn-delete") || event.target.closest(".btn-delete")) {
+        const btn = event.target.closest(".btn-delete");
+        const licenseId = btn.dataset.licenseId;
+        if (!licenseId) {
+          console.error("El atributo data-license-id no está definido.");
+          return;
+        }
+        if (confirm("¿Estás seguro de que deseas eliminar esta licencia?")) {
+          fetch(`/licenses/delete/${licenseId}`, {
+            method: "POST",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                loadContent(
+                  "licensespanel",
+                  document.querySelector('.sidebar a[href*="licensespanel"]')
+                );
+              } else {
+                alert("Error al eliminar la licencia: " + data.error);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Hubo un problema al intentar eliminar la licencia.");
+            });
+        }
+      }
+    });
+
+    // Crear licencia 
+    document.addEventListener("submit", function (event) {
+      if (event.target.matches("#createLicenseForm")) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+
+        fetch("/licenses/create", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              loadContent(
+                "licensespanel",
+                document.querySelector('.sidebar a[href*="licensespanel"]')
+              );
+            } else {
+              alert(
+                "Error al crear la licencia: " +
+                (data.error || "Error desconocido")
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Hubo un problema al intentar crear la licencia.");
+          });
+      }
+    });
+
+    // Inicializar la búsqueda de licencias
+    function initLicenseSearch() {
+      const searchInput = document.getElementById("searchLicenses");
+      const table = document.querySelector(".license-table");
+      if (!searchInput || !table) return;
+
+      searchInput.addEventListener("input", function () {
+        const filter = searchInput.value.toLowerCase();
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) { // Empieza en 1 para saltar el header
+          const cells = rows[i].getElementsByTagName("td");
+          let found = false;
+
+          for (let j = 0; j < cells.length; j++) {
+            if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
+              found = true;
+              break;
+            }
+          }
+
+          rows[i].style.display = found ? "" : "none";
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

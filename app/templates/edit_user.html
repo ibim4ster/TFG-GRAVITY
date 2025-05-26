@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuario</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_user.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <div id="content-area">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="page-title">Editar Usuario: {{ user.username }}</h2>
+                <a href="#" onclick="loadContent('adminpanel', this)" class="btn btn-secondary">Volver al Panel</a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Información del Usuario</h3>
+                </div>
+
+                <div class="user-status">
+                    <div class="status-item">
+                        <div class="status-label">Estado de Licencia</div>
+                        <div class="status-value">
+                            {% set licencia = user.licencias|selectattr('estado', 'equalto', 'Activa')|list|first %}
+                            {% if licencia %}
+                            <span class="badge badge-success">Activa</span>
+                            {% else %}
+                            <span class="badge badge-danger">Inactiva</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Estado de la Cuenta</div>
+                        <div class="status-value">
+                            {% if user.is_banned %}
+                            <span class="badge badge-danger">Banneado</span>
+                            {% else %}
+                            <span class="badge badge-success">Activo</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <form id="editUserForm" data-user-id="{{ user.id }}">
+                    <div class="form-group">
+                        <label for="username">Nombre de Usuario:</label>
+                        <input type="text" name="username" value="{{ user.username }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rol">Rol de Usuario:</label>
+                        <select name="rol">
+                            <option value="Admin" {% if user.rol=='Admin' %}selected{% endif %}>Administrador</option>
+                            <option value="Cliente" {% if user.rol=='Cliente' %}selected{% endif %}>Cliente</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="license_status">Estado de Licencia:</label>
+                        <select name="license_status" class="select-disabled" disabled>
+                            <option value="1" {% if licencia %}selected{% endif %}>Activa</option>
+                            <option value="0" {% if not licencia %}selected{% endif %}>Inactiva</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="banned">Estado de la Cuenta:</label>
+                        <select name="banned">
+                            <option value="0" {% if not user.is_banned %}selected{% endif %}>Activo</option>
+                            <option value="1" {% if user.is_banned %}selected{% endif %}>Banneado</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <button id="deleteUser" data-user-id="{{ user.id }}" class="btn btn-danger"
+                            type="button">Eliminar Usuario</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gestión de Licencias</h3>
+                </div>
+
+                <div class="license-form">
+                    <div class="form-group">
+                        <label for="license_type">Tipo de licencia:</label>
+                        <select name="license_type" id="license_type" required>
+                            <option value="">Selecciona tipo</option>
+                            <option value="Mensual">Mensual</option>
+                            <option value="Anual">Anual</option>
+                            <option value="Permanente">Permanente</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="license_end">Fecha de finalización (solo si no es permanente):</label>
+                        <input type="date" name="license_end" id="license_end">
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" id="assignLicenseBtn" class="btn btn-primary">Asignar Nueva
+                            Licencia</button>
+                        {% if licencia %}
+                        <button type="button" id="revokeLicenseBtn" class="btn btn-danger">Revocar Licencia
+                            Actual</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reemplaza la sección de transacciones con esta versión: -->
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Transacciones de PayPal</h3>
+                </div>
+
+                <div class="transactions-table">
+                    {% if user.transacciones and user.transacciones|length > 0 %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th>Licencia</th>
+                                <th>Factura</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in user.transacciones %}
+                            <tr>
+                                <td>{{ transaction.fecha.strftime('%d-%m-%Y %H:%M') }}</td>
+                                <td>€{{ transaction.monto }}</td>
+                                <td>
+                                    {% if transaction.licencia %}
+                                    {{ transaction.licencia.codigo }} ({{ transaction.licencia.tipo }})
+                                    {% else %}
+                                    <span class="text-warning">Sin licencia asociada</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not transaction.paypal_transaction_id.startswith('MANUAL') and not
+                                    transaction.paypal_transaction_id.startswith('ADMIN') and not
+                                    transaction.paypal_transaction_id.startswith('SIN') %}
+                                    <a href="https://www.sandbox.paypal.com/activity/payment/{{ transaction.paypal_transaction_id }}"
+                                        target="_blank" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-file-invoice"></i> Ver Factura PayPal
+                                    </a>
+                                    {% else %}
+                                    <span class="badge badge-secondary">Sin factura disponible</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="no-transactions">
+                        <p>No hay transacciones registradas para este usuario.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mostrar/ocultar campo de fecha según el tipo de licencia
+            document.getElementById('license_type').addEventListener('change', function () {
+                const dateField = document.getElementById('license_end');
+                if (this.value === 'Permanente') {
+                    dateField.value = '';
+                    dateField.parentElement.style.display = 'none';
+                } else {
+                    dateField.parentElement.style.display = 'block';
+                }
+            });
+
+            // Guardar cambios usuario
+            document.getElementById('editUserForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+                fetch(`/update_user/{{ user.id }}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Error al guardar los cambios.');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            loadContent('adminpanel', document.querySelector('.sidebar a[href*="adminpanel"]'));
+                        } else {
+                            alert('Error al actualizar el usuario: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Hubo un problema al intentar guardar los cambios.');
+                    });
+            });
+
+            // Eliminar usuario
+            document.getElementById('deleteUser').addEventListener('click', function () {
+                if (confirm("¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.")) {
+                    fetch(`/delete_user/{{ user.id }}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                loadContent('adminpanel', document.querySelector('.sidebar a[href*="adminpanel"]'));
+                            } else {
+                                alert('Error al eliminar el usuario: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Hubo un problema al intentar eliminar el usuario.');
+                        });
+                }
+            });
+
+            // Asignar licencia
+            document.getElementById('assignLicenseBtn').addEventListener('click', function () {
+                const licenseType = document.getElementById('license_type').value;
+                let licenseEnd = document.getElementById('license_end').value;
+
+                if (!licenseType) {
+                    alert('Por favor selecciona un tipo de licencia.');
+                    return;
+                }
+
+                if (licenseType !== 'Permanente' && !licenseEnd) {
+                    alert('Por favor selecciona una fecha de finalización para la licencia.');
+                    return;
+                }
+
+                if (licenseType === 'Permanente') {
+                    licenseEnd = null;
+                }
+
+                fetch(`/assign_license/{{ user.id }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        license_type: licenseType,
+                        license_end: licenseEnd
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Recargar la página para reflejar los cambios
+                            location.reload();
+                        } else {
+                            alert('Error al asignar la licencia: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Hubo un problema al intentar asignar la licencia.');
+                    });
+            });
+
+            // Revocar licencia
+            if (document.getElementById('revokeLicenseBtn')) {
+                document.getElementById('revokeLicenseBtn').addEventListener('click', function () {
+                    if (confirm("¿Estás seguro de que deseas revocar la licencia activa de este usuario?")) {
+                        fetch(`/revoke_license/{{ user.id }}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Recargar la página para reflejar los cambios
+                                    location.reload();
+                                } else {
+                                    alert('Error al revocar la licencia: ' + data.error);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Hubo un problema al intentar revocar la licencia.');
+                            });
+                    }
+                });
+            }
+
+            // Arreglar transacciones faltantes
+            const fixMissingTransactionBtn = document.getElementById('fixMissingTransactionBtn');
+            if (fixMissingTransactionBtn) {
+                fixMissingTransactionBtn.addEventListener('click', function () {
+                    if (confirm("¿Deseas crear automáticamente registros de transacción para las licencias activas sin transacción?")) {
+                        fetch('/licenses/fix_missing_transactions', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert(`Operación exitosa: ${data.message}`);
+                                    location.reload();
+                                } else {
+                                    alert('Error: ' + data.error);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Hubo un problema al intentar corregir las transacciones.');
+                            });
+                    }
+                });
+            }
+
+            // Inicializar el estado del campo de fecha
+            const licenseTypeSelect = document.getElementById('license_type');
+            if (licenseTypeSelect.value === 'Permanente') {
+                document.getElementById('license_end').parentElement.style.display = 'none';
+            }
+
+            // Handle transaction modal
+            const addTransactionBtn = document.getElementById('addTransactionBtn');
+            if (addTransactionBtn) {
+                addTransactionBtn.addEventListener('click', function () {
+                    // Show modal using Bootstrap's modal
+                    $('#addTransactionModal').modal('show');
+                });
+            }
+
+            // Save transaction button handler
+            const saveTransactionBtn = document.getElementById('saveTransactionBtn');
+            if (saveTransactionBtn) {
+                saveTransactionBtn.addEventListener('click', function () {
+                    const form = document.getElementById('addTransactionForm');
+                    const formData = new FormData(form);
+                    formData.append('user_id', '{{ user.id }}');
+
+                    fetch('/admin/add_transaction', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Close modal
+                                $('#addTransactionModal').modal('hide');
+                                // Reload page
+                                location.reload();
+                            } else {
+                                alert('Error al guardar la transacción: ' + data.error);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error:', err);
+                            alert('Error al guardar la transacción');
+                        });
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

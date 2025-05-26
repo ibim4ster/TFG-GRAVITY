@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Gravity</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_content.css') }}">
+</head>
+<body>
+  <div class="welcome-header">
+    <h2 class="welcome-title">Bienvenido/a, {{ current_user.email }}</h2>
+    <p class="subtitle">Sistema de gestión de licencias tipo SaaS</p>
+  </div>
+
+  <div class="dashboard-container">
+    <!-- Tarjeta de bienvenida -->
+    <div class="card welcome-card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-user"></i></div>
+        <h3>Tu perfil</h3>
+      </div>
+      <div class="features-grid">
+        <div class="feature-item">
+          <span class="feature-icon"><i class="fas fa-envelope"></i></span>
+          <span>{{ current_user.email }}</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon"><i class="fas fa-user-tag"></i></span>
+          <span>Rol: {{ current_user.rol }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta de eslogan -->
+    <div class="card slogan-card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-bolt"></i></div>
+        <h3>Gravity</h3>
+      </div>
+      <div class="slogan-content">
+        La plataforma líder en gestión de licencias empresariales
+      </div>
+    </div>
+
+    <!-- Tarjeta de ayuda -->
+    <div class="card help-card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-question-circle"></i></div>
+        <h3>Soporte y asistencia</h3>
+      </div>
+      <div class="help-content">
+        <p>Disponemos de múltiples canales de ayuda para que puedas resolver cualquier duda:</p>
+        <p><strong>• Guías completas</strong> para aprender a utilizar todas las funcionalidades</p>
+        <p><strong>• Sistema de tickets</strong> para consultas específicas que requieran atención personalizada</p>
+        <p><strong>• ChatBot de IA</strong> disponible 24/7 para resolución inmediata de consultas técnicas</p>
+      </div>
+    </div>
+
+    <!-- Tarjeta de licencia -->
+    <div class="card license-card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-certificate"></i></div>
+        <h3>Estado de licencia</h3>
+      </div>
+      <div class="license-content">
+        {% set licencia = current_user.licencias|selectattr('estado', 'equalto', 'Activa')|list|first %}
+        {% if licencia %}
+          <p>
+            <strong>Tipo:</strong> {{ licencia.tipo }}<br>
+            {% if licencia.tipo != 'Permanente' %}
+              <strong>Válida hasta:</strong> {{ licencia.fecha_fin.strftime('%d/%m/%Y') }}
+            {% else %}
+              <span class="license-card-permanent">Licencia permanente</span>
+            {% endif %}
+          </p>
+        {% else %}
+          <p>Actualmente no dispones de una licencia activa en tu cuenta.</p>
+          <span class="license-card-no-license">Sin licencia activa</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Guía rápida -->
+    <div class="card quickstart-card">
+      <div class="card-header">
+        <div class="card-icon"><i class="fas fa-rocket"></i></div>
+        <h3>Primeros pasos</h3>
+      </div>
+      <div class="guide-steps">
+        <div class="step-item">
+          <span class="step-number">1</span>
+          <span class="step-text">Adquiere una licencia</span>
+        </div>
+        <div class="step-item">
+          <span class="step-number">2</span>
+          <span class="step-text">Explora las herramientas de búsqueda</span>
+        </div>
+        <div class="step-item">
+          <span class="step-number">3</span>
+          <span class="step-text">Comienza a utilizar Gravity</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | Gravity</title>
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='test.png') }}" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+
+</head>
+
+<body>
+    <div class="login-card">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Gravity Logo">
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="input-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Usuario / Correo"
+                    required autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña"
+                    required autocomplete="current-password">
+                <i class="fas fa-eye eye-icon"></i>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+
+            <div class="register-link text-center">
+                ¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate aquí</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.querySelector('.eye-icon').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.classList.remove('fa-eye');
+                this.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                this.classList.remove('fa-eye-slash');
+                this.classList.add('fa-eye');
+            }
+        });
+    </script>
+</body>
+
+</html>

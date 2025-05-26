@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Licencias | Gravity</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/licensespanel.css') }}">
+</head>
+<body>
+  <div class="license-panel">
+    <div class="license-header">
+      <h2><i class="fas fa-key"></i> Gestión de Licencias</h2>
+    </div>
+    <div class="search-create-row">
+      <div class="search-container">
+        <input type="text" id="searchLicenses" class="search-input" placeholder="Buscar licencias...">
+      </div>
+      <button class="btn-create" onclick="loadContent('create_license', this)">
+        <i class="fas fa-plus"></i> Crear Licencia
+      </button>
+    </div>
+
+    <div class="license-table-container">
+      <table class="license-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Tipo</th>
+            <th>Código</th>
+            <th>Estado</th>
+            <th>Fecha inicio</th>
+            <th>Fecha fin</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lic in licencias %}
+          <tr>
+            <td>{{ lic.id }}</td>
+            <td>{{ lic.usuario.username if lic.usuario else 'N/A' }}</td>
+            <td><span class="license-type">{{ lic.tipo }}</span></td>
+            <td class="license-code">{{ lic.codigo }}</td>
+            <td class="license-status">
+              {% if lic.estado == 'Activa' %}
+              <span class="status-active">Activa</span>
+              {% elif lic.estado == 'Stock' %}
+              <span class="status-stock">Stock</span>
+              {% elif lic.estado == 'Suspendida' %}
+              <span class="status-suspended">Suspendida</span>
+              {% else %}
+              <span class="status-expired">{{ lic.estado }}</span>
+              {% endif %}
+            </td>
+            <td>{{ lic.fecha_inicio.strftime('%d/%m/%Y') if lic.fecha_inicio else '-' }}</td>
+            <td>{{ lic.fecha_fin.strftime('%d/%m/%Y') if lic.fecha_fin else '-' }}</td>
+            <td>
+              <a href="#" onclick="loadContent('edit_license/{{ lic.id }}', this)" class="btn-edit"> 
+                <i class="fas fa-edit"></i> Editar
+              </a>
+              <button type="button" class="btn-delete" data-license-id="{{ lic.id }}">
+                <i class="fas fa-trash"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    // Búsqueda en tiempo real para licencias
+    function activarBuscadorLicencias() {
+      const input = document.getElementById("searchLicenses");
+      const table = document.querySelector(".license-table tbody");
+      if (!input || !table) return;
+
+      input.addEventListener("keyup", function () {
+        const filter = input.value.toLowerCase();
+        const rows = table.getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+          const cells = Array.from(rows[i].cells);
+          const match = cells.some(cell => cell.textContent.toLowerCase().includes(filter));
+          rows[i].style.display = match ? "" : "none";
+        }
+      });
+    }
+
+    // Si usas AJAX para cargar el panel, llama a activarBuscadorLicencias() después de cargar el contenido:
+    if (typeof activarBuscadorLicencias === "function") {
+      activarBuscadorLicencias();
+    }
+  </script>
+</body>
+</html>

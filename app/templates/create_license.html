@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Licencia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/create_license.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Crear Nueva Licencia</h2>
+        <div id="msg"></div>
+        <form id="createLicenseForm" method="POST" action="/create_license">
+            <div class="form-group">
+                <label for="usuario_id">Usuario (ID):</label>
+                <input type="number" id="usuario_id" name="usuario_id" placeholder="ID del usuario (opcional)">
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo de Licencia:</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="Mensual">Mensual</option>
+                    <option value="Anual">Anual</option>
+                    <option value="Permanente">Permanente</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <select id="estado" name="estado" required>
+                    <option value="Stock">Stock</option>
+                    <option value="Activa">Activa</option>
+                    <option value="Suspendida">Suspendida</option>
+                    <option value="Expirada">Expirada</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fecha_inicio">Fecha Inicio:</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio" required>
+            </div>
+            <div class="form-group">
+                <label for="fecha_fin">Fecha Fin (solo si no es permanente):</label>
+                <input type="date" id="fecha_fin" name="fecha_fin">
+            </div>
+            <button type="submit" class="btn btn-primary">Crear Licencia</button>
+            <a href="#" onclick="loadContent('licensespanel', this)" class="btn btn-secondary">Volver al Panel</a>
+        </form>
+    </div>
+
+    <script>
+        // Set today's date as default for fecha_inicio
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const todayFormatted = today.toISOString().split('T')[0];
+            document.getElementById('fecha_inicio').value = todayFormatted;
+            
+            // Calculate default end date (30 days from now) for monthly licenses
+            const nextMonth = new Date();
+            nextMonth.setDate(nextMonth.getDate() + 30);
+            const nextMonthFormatted = nextMonth.toISOString().split('T')[0];
+            
+            // Set the default end date
+            const fechaFin = document.getElementById('fecha_fin');
+            fechaFin.value = nextMonthFormatted;
+        });
+
+        // Toggle fecha_fin field based on license type
+        document.getElementById('tipo').addEventListener('change', function() {
+            const fechaFinField = document.getElementById('fecha_fin');
+            if (this.value === 'Permanente') {
+                fechaFinField.value = '';
+                fechaFinField.disabled = true;
+            } else {
+                fechaFinField.disabled = false;
+                
+                // Set appropriate end date based on license type
+                if (!fechaFinField.value) {
+                    const today = new Date();
+                    if (this.value === 'Mensual') {
+                        today.setMonth(today.getMonth() + 1);
+                    } else if (this.value === 'Anual') {
+                        today.setFullYear(today.getFullYear() + 1);
+                    }
+                    fechaFinField.value = today.toISOString().split('T')[0];
+                }
+                
+                // Force reflow to fix mobile rendering issues
+                fechaFinField.style.display = 'none';
+                setTimeout(() => {
+                    fechaFinField.style.display = 'block';
+                }, 10);
+            }
+        });
+        
+        // Form submission handler
+        document.getElementById('createLicenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                let msg = document.getElementById('msg');
+                if (data.success) {
+                    msg.innerHTML = "<div class='success-msg'>¡Licencia creada correctamente!</div>";
+                    setTimeout(() => {
+                        loadContent('licensespanel');
+                    }, 1500);
+                } else {
+                    msg.innerHTML = "<div class='error-msg'>Error: " + (data.error || "No se pudo crear la licencia") + "</div>";
+                }
+            })
+            .catch(() => {
+                let msg = document.getElementById('msg');
+                msg.innerHTML = "<div class='error-msg'>Error al conectar con el servidor.</div>";
+            });
+        });
+    </script>
+</body>
+</html>

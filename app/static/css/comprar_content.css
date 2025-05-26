@@ -1,0 +1,296 @@
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h2.centered {
+  text-align: center;
+  margin: 40px 0;
+  font-size: 2.5em;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.license-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 30px;
+  flex-wrap: wrap;
+  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.license-card {
+  flex: 0 0 320px;
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 25px 20px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.license-card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+  transform: translateY(-10px);
+  transition: transform 0.3s ease, box-shadow 0.4s ease;
+}
+
+.license-card h3 {
+  color: #f5f5f5;
+  font-size: 1.6em;
+  margin-bottom: 15px;
+}
+
+.icon {
+  font-size: 3em;
+  color: #888;
+  margin: 20px 0;
+}
+
+.description {
+  font-style: italic;
+  color: #bbb;
+  font-size: 1.1em;
+  margin: 20px 0;
+  min-height: 60px;
+}
+
+.price {
+  font-size: 2em;
+  color: #fff;
+  background-color: #333;
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin: 20px 0;
+  font-weight: bold;
+}
+
+.cta-button {
+  margin-top: 18px;
+  width: 100%;
+}
+
+.monthly {
+  border-left: 5px solid #888;
+}
+
+.permanent {
+  border-left: 5px solid #ffd700;
+}
+
+.annual {
+  border-left: 5px solid #007bff;
+}
+
+.payment-logos {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+  padding-top: 20px;
+  font-size: 2.5em;
+  flex-wrap: wrap;
+}
+
+.payment-logos i {
+  color: #ddd;
+  transition: color 0.3s ease;
+}
+
+.payment-logos i:hover {
+  color: #fff;
+}
+
+.payment-text {
+  text-align: center;
+  font-size: 1.1em;
+  color: #ddd;
+  margin-top: 40px;
+  font-weight: bold;
+}
+
+/* Large screens (desktops) */
+@media (max-width: 1200px) {
+  .license-container {
+    max-width: 990px;
+    padding: 0 20px;
+  }
+  
+  .license-card {
+    flex: 0 0 290px;
+  }
+}
+
+/* Medium screens (tablets) */
+@media (max-width: 992px) {
+  h2.centered {
+    font-size: 2.2em;
+    margin: 35px 0;
+  }
+  
+  .license-container {
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .license-card {
+    flex: 0 0 280px;
+    padding: 20px 15px;
+  }
+  
+  .icon {
+    font-size: 2.5em;
+    margin: 15px 0;
+  }
+  
+  .description {
+    font-size: 1em;
+  }
+  
+  .price {
+    font-size: 1.8em;
+    padding: 10px 15px;
+  }
+  
+  .payment-logos {
+    gap: 20px;
+    font-size: 2.2em;
+  }
+}
+
+/* Small screens (mobile landscape) */
+@media (max-width: 768px) {
+  h2.centered {
+    font-size: 2em;
+    margin: 30px 0;
+  }
+  
+  .license-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    padding: 0;
+    width: 100%;
+  }
+
+  .license-card {
+    flex: none;
+    width: 90%;
+    max-width: 400px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  .description {
+    min-height: auto;
+  }
+  
+  .payment-logos {
+    gap: 15px;
+    padding: 0 20px;
+  }
+  
+  .payment-text {
+    margin-top: 30px;
+  }
+}
+
+/* Extra small screens (mobile portrait) */
+@media (max-width: 480px) {
+  h2.centered {
+    font-size: 1.8em;
+    margin: 25px 0;
+  }
+  
+  .license-card {
+    width: 85%;
+    max-width: 320px;
+    padding: 20px 15px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  .license-card h3 {
+    font-size: 1.4em;
+  }
+  
+  .icon {
+    font-size: 2.2em;
+    margin: 10px 0;
+  }
+  
+  .description {
+    font-size: 0.95em;
+    margin: 15px 0;
+  }
+  
+  .price {
+    font-size: 1.6em;
+    padding: 8px 12px;
+    margin: 15px 0;
+  }
+  
+  .payment-logos {
+    font-size: 1.8em;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .payment-logos i {
+    margin: 5px;
+  }
+  
+  .payment-text {
+    font-size: 1em;
+  }
+  
+  /* Fix PayPal buttons on small screens */
+  .cta-button {
+    margin-top: 15px;
+  }
+}
+
+/* Fix for very small screens */
+@media (max-width: 350px) {
+  .license-card {
+    width: 90%;
+    padding: 15px 10px;
+    max-width: 280px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  .license-card h3 {
+    font-size: 1.3em;
+  }
+  
+  .icon {
+    font-size: 2em;
+  }
+  
+  .description {
+    font-size: 0.9em;
+  }
+  
+  .price {
+    font-size: 1.5em;
+  }
+  
+  .payment-logos {
+    font-size: 1.6em;
+  }
+}

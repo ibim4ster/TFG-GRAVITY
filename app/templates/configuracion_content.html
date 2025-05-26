@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Usuario</title>
+    <link rel="stylesheet" href="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/configuracion_content.css') }}">
+    <div class="config-container">
+        <div class="user-welcome">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-info">
+                <h2>Hola, {{ current_user.username }}</h2>
+                <p>{{ current_user.email }}</p>
+            </div>
+        </div>
+
+        <!-- Estado de licencia -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-certificate"></i></div>
+                <h3>Estado de Licencia</h3>
+            </div>
+
+            {% set licencia = current_user.licencias|selectattr('estado', 'equalto', 'Activa')|list|first %}
+            {% if licencia %}
+            {% if licencia.tipo == 'Mensual' %}
+            <div class="license-status license-monthly">
+                <div class="license-status-content">
+                    <h4>Licencia Mensual Activa</h4>
+                    <p>Válida hasta: {{ licencia.fecha_fin.strftime('%d/%m/%Y') }}</p>
+                </div>
+                <div class="license-status-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+            {% elif licencia.tipo == 'Anual' %}
+            <div class="license-status license-annual">
+                <div class="license-status-content">
+                    <h4>Licencia Anual Activa</h4>
+                    <p>Válida hasta: {{ licencia.fecha_fin.strftime('%d/%m/%Y') }}</p>
+                </div>
+                <div class="license-status-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+            </div>
+            {% elif licencia.tipo == 'Permanente' %}
+            <div class="license-status license-permanent">
+                <div class="license-status-content">
+                    <h4>Licencia Permanente</h4>
+                    <p>Disfruta de acceso ilimitado a todas las funciones</p>
+                </div>
+                <div class="license-status-icon">
+                    <i class="fas fa-gem"></i>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="license-status license-none">
+                <div class="license-status-content">
+                    <h4>Sin Licencia Activa</h4>
+                    <p>Adquiere una licencia para acceder a todas las funciones</p>
+                </div>
+                <div class="license-status-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Cambio de contraseña -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-key"></i></div>
+                <h3>Cambiar Contraseña</h3>
+            </div>
+
+            <form method="POST" action="{{ url_for('user.update_configuration') }}" id="change-password-form">
+                <div class="form-group">
+                    <label for="new_password">Nueva Contraseña</label>
+                    <input type="password" id="new_password" name="new_password"
+                        placeholder="Ingresa tu nueva contraseña" required />
+                    <div id="new_password_error" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirmar Contraseña</label>
+                    <input type="password" id="confirm_password" name="confirm_password"
+                        placeholder="Confirma tu nueva contraseña" required />
+                    <div id="confirm_password_error" class="error-message"></div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Actualizar Contraseña
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Eliminar cuenta -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: linear-gradient(135deg, #d32f2f, #f44336);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>Zona de Peligro</h3>
+            </div>
+
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Al eliminar tu cuenta, perderás el acceso a todos tus datos y licencias de forma permanente.
+                Esta acción no se puede deshacer.
+            </p>
+
+            <form method="POST" action="{{ url_for('user.eliminar_cuenta') }}">
+                <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.')">
+                    <i class="fas fa-trash-alt"></i> Eliminar Mi Cuenta
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Manejar el envío del formulario con validaciones
+        document.getElementById("change-password-form").addEventListener("submit", function (event) {
+            var newPassword = document.getElementById("new_password").value;
+            var confirmPassword = document.getElementById("confirm_password").value;
+
+            // Limpiar mensajes de error anteriores
+            document.getElementById("new_password_error").innerText = '';
+            document.getElementById("confirm_password_error").innerText = '';
+
+            // Validar que ambos campos no están vacíos
+            if (!newPassword || !confirmPassword) {
+                event.preventDefault();
+                document.getElementById("new_password_error").innerText = 'Ambos campos de contraseña son obligatorios.';
+                return;
+            }
+
+            // Validar que las contraseñas coinciden
+            if (newPassword !== confirmPassword) {
+                event.preventDefault();
+                document.getElementById("confirm_password_error").innerText = 'Las contraseñas no coinciden.';
+                return;
+            }
+        });
+    </script>
+    </body>
+
+</html>
