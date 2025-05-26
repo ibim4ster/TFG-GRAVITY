@@ -184,11 +184,44 @@ tr:last-child td {
 }
 
 .license-code {
-  font-family: monospace;
-  font-size: 0.9em;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2px 5px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.92em;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #00e676;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-align: center;
+  display: inline-block;
+  min-width: 120px;
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+/* Añadir tooltip para ver el código completo al hacer hover */
+.license-code:hover {
+  position: relative;
+  overflow: visible;
+}
+
+.license-code:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -30px;
+  background: #333;
+  color: white;
+  padding: 3px 8px;
   border-radius: 3px;
+  font-size: 0.85em;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Empty state */
@@ -213,17 +246,19 @@ tr:last-child td {
   .license-panel {
     padding: 15px;
   }
-  
+
   .license-header h2 {
     font-size: 1.6rem;
   }
-  
-  .btn-edit, .btn-delete {
+
+  .btn-edit,
+  .btn-delete {
     padding: 8px 12px;
     margin-bottom: 5px;
   }
-  
-  th, td {
+
+  th,
+  td {
     padding: 10px 12px;
   }
 }
@@ -234,40 +269,53 @@ tr:last-child td {
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .search-container {
     max-width: 100%;
   }
-  
+
   .btn-create {
     width: 100%;
     justify-content: center;
   }
-  
+
   .license-header {
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 20px;
   }
-  
+
   .license-header h2 {
     margin-bottom: 10px;
   }
-  
+
   .license-table {
     font-size: 0.95rem;
   }
-  
-  th, td {
+
+  /* Para mejorar la distribución de las columnas de la tabla */
+  .license-table th:nth-child(4),
+  /* Columna del código */
+  .license-table td:nth-child(4) {
+    text-align: center;
+    min-width: 140px;
+  }
+
+  th,
+  td {
     padding: 8px 10px;
   }
-  
-  .status-active, .status-stock, .status-suspended, .status-expired {
+
+  .status-active,
+  .status-stock,
+  .status-suspended,
+  .status-expired {
     padding: 3px 6px;
     font-size: 0.85rem;
   }
-  
-  .btn-edit, .btn-delete {
+
+  .btn-edit,
+  .btn-delete {
     padding: 6px 10px;
     font-size: 0.9rem;
     margin: 3px 0;
@@ -283,49 +331,58 @@ tr:last-child td {
   .license-panel {
     padding: 10px;
   }
-  
+
   .license-header h2 {
     font-size: 1.5rem;
   }
-  
+
   .search-input {
     padding: 8px 12px;
   }
-  
+
   .license-table {
     font-size: 0.85rem;
   }
-  
-  th, td {
+
+  th,
+  td {
     padding: 8px 6px;
   }
-  
-td:nth-child(6), th:nth-child(6), /* Start date */
-td:nth-child(7), th:nth-child(7) { /* End date */
-  display: none;
-}
-  
-  .btn-edit, .btn-delete {
+
+  td:nth-child(6),
+  th:nth-child(6),
+  /* Start date */
+  td:nth-child(7),
+  th:nth-child(7) {
+    /* End date */
+    display: none;
+  }
+
+  .btn-edit,
+  .btn-delete {
     padding: 6px 8px;
     font-size: 0.8rem;
     display: block;
     width: 100%;
     margin: 4px 0;
   }
-  
-  .status-active, .status-stock, .status-suspended, .status-expired {
+
+  .status-active,
+  .status-stock,
+  .status-suspended,
+  .status-expired {
     padding: 2px 5px;
     font-size: 0.8rem;
   }
-  
+
   .empty-state {
     padding: 25px 15px;
   }
-  
+
   .empty-state i {
     font-size: 2.5em;
   }
-  
+
   .empty-state p {
     font-size: 1em;
   }
@@ -336,15 +393,29 @@ td:nth-child(7), th:nth-child(7) { /* End date */
   .license-panel {
     padding: 10px;
   }
-  
+
+  /* Para evitar problemas con viewports pequeños */
+  @media (max-width: 768px) {
+    .license-code {
+      max-width: 100px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .license-code {
+      max-width: 80px;
+      font-size: 0.85em;
+    }
+  }
+
   .license-header h2 {
     font-size: 1.4rem;
   }
-  
+
   .btn-create {
     padding: 6px 12px;
   }
-  
+
   .empty-state {
     padding: 20px 15px;
   }
@@ -356,6 +427,7 @@ td:nth-child(7), th:nth-child(7) { /* End date */
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
