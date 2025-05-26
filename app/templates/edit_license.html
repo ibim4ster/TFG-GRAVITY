@@ -19,35 +19,39 @@
                     <div class="form-group">
                         <label for="tipo">Tipo de Licencia:</label>
                         <select id="tipo" name="tipo" required>
-                            <option value="Mensual" {% if licencia.tipo=='Mensual' %}selected{% endif %}>Mensual</option>
+                            <option value="Mensual" {% if licencia.tipo=='Mensual' %}selected{% endif %}>Mensual
+                            </option>
                             <option value="Anual" {% if licencia.tipo=='Anual' %}selected{% endif %}>Anual</option>
-                            <option value="Permanente" {% if licencia.tipo=='Permanente' %}selected{% endif %}>Permanente</option>
+                            <option value="Permanente" {% if licencia.tipo=='Permanente' %}selected{% endif %}>
+                                Permanente</option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="estado">Estado:</label>
                         <select id="estado" name="estado" required>
                             <option value="Stock" {% if licencia.estado=='Stock' %}selected{% endif %}>Stock</option>
                             <option value="Activa" {% if licencia.estado=='Activa' %}selected{% endif %}>Activa</option>
-                            <option value="Suspendida" {% if licencia.estado=='Suspendida' %}selected{% endif %}>Suspendida</option>
-                            <option value="Expirada" {% if licencia.estado=='Expirada' %}selected{% endif %}>Expirada</option>
+                            <option value="Suspendida" {% if licencia.estado=='Suspendida' %}selected{% endif %}>
+                                Suspendida</option>
+                            <option value="Expirada" {% if licencia.estado=='Expirada' %}selected{% endif %}>Expirada
+                            </option>
                         </select>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="fecha_inicio">Fecha Inicio:</label>
                         <input type="date" id="fecha_inicio" name="fecha_inicio" class="date-input"
                             value="{{ licencia.fecha_inicio.strftime('%Y-%m-%d') if licencia.fecha_inicio else '' }}">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="fecha_fin">Fecha Fin (solo si no es permanente):</label>
                         <input type="date" id="fecha_fin" name="fecha_fin" class="date-input"
-                            value="{{ licencia.fecha_fin.strftime('%Y-%m-%d') if licencia.fecha_fin else '' }}" 
-                            {% if licencia.tipo=='Permanente' %}disabled{% endif %}>
+                            value="{{ licencia.fecha_fin.strftime('%Y-%m-%d') if licencia.fecha_fin else '' }}" {% if
+                            licencia.tipo=='Permanente' %}disabled{% endif %}>
                     </div>
-                    
+
                     <div class="btn-container">
                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                         <button type="button" class="btn btn-danger" id="deleteLicenseBtn"
@@ -76,7 +80,7 @@
 
     <script>
         // Toggle fecha_fin field based on license type
-        document.getElementById('tipo').addEventListener('change', function() {
+        document.getElementById('tipo').addEventListener('change', function () {
             const fechaFinField = document.getElementById('fecha_fin');
             if (this.value === 'Permanente') {
                 fechaFinField.value = '';
@@ -92,9 +96,9 @@
         });
 
         // Initialize date inputs
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const dateInputs = document.querySelectorAll('.date-input');
-            
+
             // Set default date format to YYYY-MM-DD for all browsers
             dateInputs.forEach(input => {
                 if (!input.value && !input.disabled) {
@@ -109,86 +113,96 @@
         });
 
         // Guardar cambios por AJAX y mostrar mensaje
-        document.getElementById('editLicenseForm').addEventListener('submit', function(e) {
+        // Reemplazar el evento de submit del formulario
+        document.getElementById('editLicenseForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const form = this;
             const formData = new FormData(form);
-            
+
             fetch(form.action, {
                 method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'  // Añadir este encabezado
+                },
                 body: formData
             })
-            .then(r => r.json())
-            .then(data => {
-                let msg = document.getElementById('msg');
-                if (data.success) {
-                    msg.innerHTML = "<div class='success-msg'>¡Licencia actualizada correctamente!</div>";
-                } else {
-                    msg.innerHTML = "<div class='error-msg'>Error: " + (data.error || "No se pudo actualizar") + "</div>";
-                }
-            })
-            .catch(() => {
-                let msg = document.getElementById('msg');
-                msg.innerHTML = "<div class='error-msg'>Error al conectar con el servidor.</div>";
-            });
+                .then(r => r.json())
+                .then(data => {
+                    let msg = document.getElementById('msg');
+                    if (data.success) {
+                        msg.innerHTML = "<div class='success-msg'>¡Licencia actualizada correctamente!</div>";
+                        // Opcional: recargar la página después de un breve retraso
+                        setTimeout(() => {
+                            loadContent('licensespanel', document.querySelector('.sidebar a[href*="licensespanel"]'));
+                        }, 1500);
+                    } else {
+                        msg.innerHTML = "<div class='error-msg'>Error: " + (data.error || "No se pudo actualizar") + "</div>";
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    let msg = document.getElementById('msg');
+                    msg.innerHTML = "<div class='error-msg'>Error al conectar con el servidor.</div>";
+                });
         });
 
         // Asignar licencia en stock a usuario por AJAX
         const assignForm = document.getElementById('assignLicenseForm');
         if (assignForm) {
-            assignForm.addEventListener('submit', function(e) {
+            assignForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 const form = this;
                 const licenseId = form.getAttribute('data-license-id');
                 const usuario_id = form.usuario_id.value;
-                
+
                 fetch(`/licenses/assign_stock/${licenseId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usuario_id })
                 })
-                .then(r => r.json())
-                .then(data => {
-                    let msg = document.getElementById('assignMsg');
-                    if (data.success) {
-                        msg.innerHTML = "<div class='success-msg'>¡Licencia asignada correctamente!</div>";
-                    } else {
-                        msg.innerHTML = "<div class='error-msg'>Error: " + (data.error || "No se pudo asignar") + "</div>";
-                    }
-                })
-                .catch(() => {
-                    let msg = document.getElementById('assignMsg');
-                    msg.innerHTML = "<div class='error-msg'>Error al conectar con el servidor.</div>";
-                });
+                    .then(r => r.json())
+                    .then(data => {
+                        let msg = document.getElementById('assignMsg');
+                        if (data.success) {
+                            msg.innerHTML = "<div class='success-msg'>¡Licencia asignada correctamente!</div>";
+                        } else {
+                            msg.innerHTML = "<div class='error-msg'>Error: " + (data.error || "No se pudo asignar") + "</div>";
+                        }
+                    })
+                    .catch(() => {
+                        let msg = document.getElementById('assignMsg');
+                        msg.innerHTML = "<div class='error-msg'>Error al conectar con el servidor.</div>";
+                    });
             });
         }
 
         // Delete license handler
         const deleteBtn = document.getElementById('deleteLicenseBtn');
         if (deleteBtn) {
-            deleteBtn.addEventListener('click', function() {
+            deleteBtn.addEventListener('click', function () {
                 const licenseId = this.getAttribute('data-license-id');
                 if (confirm("¿Estás seguro de que deseas eliminar esta licencia?")) {
                     // Add your delete license logic here
                     fetch(`/licenses/delete/${licenseId}`, {
                         method: 'POST'
                     })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            loadContent('licensespanel');
-                        } else {
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                loadContent('licensespanel');
+                            } else {
+                                let msg = document.getElementById('msg');
+                                msg.innerHTML = "<div class='error-msg'>Error: " + (data.error || "No se pudo eliminar") + "</div>";
+                            }
+                        })
+                        .catch(() => {
                             let msg = document.getElementById('msg');
-                            msg.innerHTML = "<div class='error-msg'>Error: " + (data.error || "No se pudo eliminar") + "</div>";
-                        }
-                    })
-                    .catch(() => {
-                        let msg = document.getElementById('msg');
-                        msg.innerHTML = "<div class='error-msg'>Error al conectar con el servidor.</div>";
-                    });
+                            msg.innerHTML = "<div class='error-msg'>Error al conectar con el servidor.</div>";
+                        });
                 }
             });
         }
     </script>
 </body>
+
 </html>

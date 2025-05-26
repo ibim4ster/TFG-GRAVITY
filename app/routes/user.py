@@ -2,7 +2,7 @@ from flask import Blueprint, request, redirect, url_for, flash
 from flask_login import login_required, current_user, logout_user
 
 from app.extensions import db
-from app.models.models import Usuario
+from app.models.models import Usuario, Licencia, TransaccionPaypal, Conversation
 
 user = Blueprint('user', __name__, url_prefix='/user')
 
@@ -27,13 +27,36 @@ def update_configuration():
 @user.route('/eliminar_cuenta', methods=['POST'])
 @login_required
 def eliminar_cuenta():
-    user_id = current_user.id
-    user = Usuario.query.get(user_id)
-    if user:
-        db.session.delete(user)
-        db.session.commit()
-        logout_user()
-        flash('Tu cuenta ha sido eliminada con éxito.', 'success')
-    else:
-        flash('No se pudo encontrar tu cuenta. Por favor, intenta de nuevo.', 'danger')
-    return redirect(url_for('auth.login'))
+    try:
+        user_id = current_user.id
+        user = Usuario.query.get(user_id)
+        
+        if user:
+            # Paso 1: Eliminar todas las transacciones PayPal del usuario
+            TransaccionPaypal.query.filter_by(usuario_id=user_id).delete()
+            
+            # Paso 2: Eliminar todas las licencias del usuario
+            Licencia.query.filter_by(usuario_id=user_id).delete()
+            
+            # Paso 3: Eliminar todas las conversaciones del usuario
+            # Aquí usamos user_id en lugar de usuario_id
+            Conversation.query.filter_by(user_id=user_id).delete()
+            
+            # Paso 4: Confirmar los cambios antes de eliminar el usuario
+            db.session.commit()
+            
+            # Paso 5: Ahora eliminar el usuario
+            db.session.delete(user)
+            db.session.commit()
+            
+            logout_user()
+            flash('Tu cuenta y todos tus datos han sido eliminados con éxito.', 'success')
+            return redirect(url_for('auth.login'))
+        else:
+            flash('No se pudo encontrar tu cuenta. Por favor, intenta de nuevo.', 'danger')
+            return redirect(url_for('main.dashboard'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Ha ocurrido un error al eliminar la cuenta: {str(e)}', 'danger')
+        return redirect(url_for('main.dashboard'))

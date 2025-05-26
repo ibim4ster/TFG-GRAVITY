@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, redirect, jsonify
 from flask_login import login_required, current_user
 
 from app.extensions import db
-from app.models.models import TransaccionPaypal, Usuario
+from app.models.models import TransaccionPaypal, Usuario, Licencia, Ticket, MensajeTicket, Conversation
 from app.services.license import get_licencia_activa
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -57,15 +57,52 @@ def update_user(user_id):
 def delete_user(user_id):
     if current_user.rol != 'Admin':
         return jsonify(success=False, error="Acceso denegado"), 403
+    
+    if user_id == current_user.id:
+        return jsonify(success=False, error="No puedes eliminar tu propia cuenta desde el panel de administración"), 400
+    
     user = Usuario.query.get(user_id)
     if not user:
         return jsonify(success=False, error="Usuario no encontrado"), 404
+    
     try:
+        # Primero debemos eliminar todos los registros relacionados
+        
+        # 1. Eliminar transacciones PayPal
+        TransaccionPaypal.query.filter_by(usuario_id=user_id).delete()
+        
+        # 2. Eliminar conversaciones
+        Conversation.query.filter_by(user_id=user_id).delete()
+        
+        # 3. Eliminar tickets creados o asignados al usuario
+        # Primero eliminar los mensajes de los tickets donde el usuario es autor
+        MensajeTicket.query.filter_by(usuario_id_autor=user_id).delete()
+        
+        # Luego eliminar los tickets donde el usuario es creador
+        Ticket.query.filter_by(usuario_id_creador=user_id).delete()
+        
+        # Modificar tickets donde el usuario es asignado (no eliminarlos)
+        for ticket in Ticket.query.filter_by(usuario_id_asignado=user_id).all():
+            ticket.usuario_id_asignado = None
+        
+        # 4. Actualizar licencias (marcar como disponibles en Stock en lugar de eliminar)
+        for licencia in Licencia.query.filter_by(usuario_id=user_id).all():
+            licencia.usuario_id = None
+            licencia.estado = 'Stock'
+            licencia.fecha_inicio = None
+            licencia.fecha_fin = None
+            
+        # 5. Hacer commit para asegurar que todos los cambios relacionales se apliquen antes
+        db.session.commit()
+        
+        # 6. Ahora sí eliminar el usuario
         db.session.delete(user)
         db.session.commit()
+        
         return jsonify(success=True)
     except Exception as e:
-        return jsonify(success=False, error="Error interno del servidor"), 500
+        db.session.rollback()
+        return jsonify(success=False, error=f"Error al eliminar usuario: {str(e)}"), 500
     
 
 @admin.route('/add_transaction', methods=['POST'])

@@ -122,6 +122,161 @@ h2.centered {
   font-weight: bold;
 }
 
+/* Nuevo diseño para el canje de códigos */
+.redeem-card {
+  background: rgba(30, 30, 40, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  max-width: 800px;
+  margin: 50px auto 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.redeem-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.redeem-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3d5afe, #1a237e);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.redeem-card:hover::before {
+  opacity: 1;
+}
+
+.redeem-header {
+  display: flex;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.redeem-icon {
+  font-size: 1.4rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a237e, #3d5afe);
+  border-radius: 12px;
+  margin-right: 16px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(61, 90, 254, 0.2);
+}
+
+.redeem-card h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #f8f9fc;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.redeem-content {
+  padding: 24px 28px;
+}
+
+.redeem-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+#license-code {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  padding: 14px 16px;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.3s ease;
+  letter-spacing: 1.5px;
+  text-align: center;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+#license-code:focus {
+  border-color: #3d5afe;
+  box-shadow: 0 0 0 2px rgba(61, 90, 254, 0.3);
+}
+
+.redeem-btn {
+  background: linear-gradient(135deg, #3949ab, #3d5afe);
+  color: #fff;
+  border: none;
+  padding: 0 24px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  min-width: 120px;
+  font-size: 0.95rem;
+}
+
+.redeem-btn:hover {
+  background: linear-gradient(135deg, #3f51b5, #536dfe);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(61, 90, 254, 0.3);
+}
+
+.redeem-btn:active {
+  transform: translateY(0);
+}
+
+.message-box {
+  min-height: 50px;
+  margin-top: 15px;
+}
+
+.success-message, .error-message, .info-message {
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.success-message {
+  color: #00c853;
+  border: 1px solid rgba(0, 200, 83, 0.2);
+}
+
+.error-message {
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+.info-message {
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.2);
+}
+
 /* Large screens (desktops) */
 @media (max-width: 1200px) {
   .license-container {
@@ -205,6 +360,33 @@ h2.centered {
   
   .payment-text {
     margin-top: 30px;
+  }
+  
+  .redeem-container {
+    flex-direction: column;
+  }
+  
+  .redeem-btn {
+    width: 100%;
+    padding: 14px;
+  }
+  
+  .redeem-header {
+    padding: 20px;
+  }
+  
+  .redeem-content {
+    padding: 20px;
+  }
+  
+  .redeem-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .redeem-card h3 {
+    font-size: 1.2rem;
   }
 }
 
@@ -295,126 +477,7 @@ h2.centered {
   }
 }
 
-/* Estilos para la sección de redención de licencias */
+/* Ocultar antigua sección de redención */
 .redeem-section {
-  background-color: rgba(30, 30, 30, 0.7);
-  border-radius: 10px;
-  padding: 20px;
-  margin: 0 auto 30px;
-  max-width: 600px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.redeem-section h3 {
-  color: #ffffff;
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 1.3rem;
-  font-weight: 500;
-}
-
-.redeem-section h3 i {
-  color: #ffc107;
-  margin-right: 8px;
-}
-
-.redeem-container {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-#license-code {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  font-size: 1rem;
-  padding: 12px 15px;
-  border-radius: 6px;
-  outline: none;
-  transition: all 0.3s ease;
-  letter-spacing: 1px;
-  text-align: center;
-  font-family: monospace;
-  text-transform: uppercase;
-}
-
-#license-code:focus {
-  border-color: #ffc107;
-  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
-}
-
-.redeem-btn {
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  color: #000;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  white-space: nowrap;
-  min-width: 120px;
-}
-
-.redeem-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #ffcd38, #ffa726);
-}
-
-.redeem-btn:active {
-  transform: translateY(-1px);
-}
-
-.message-box {
-  min-height: 50px;
-  margin-top: 10px;
-}
-
-.success-message, .error-message, .info-message {
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.success-message {
-  background-color: rgba(76, 175, 80, 0.2);
-  color: #4CAF50;
-  border: 1px solid rgba(76, 175, 80, 0.3);
-}
-
-.error-message {
-  background-color: rgba(244, 67, 54, 0.2);
-  color: #f44336;
-  border: 1px solid rgba(244, 67, 54, 0.3);
-}
-
-.info-message {
-  background-color: rgba(33, 150, 243, 0.2);
-  color: #42a5f5;
-  border: 1px solid rgba(33, 150, 243, 0.3);
-}
-
-/* Responsive adjustments for redeem section */
-@media (max-width: 600px) {
-  .redeem-container {
-    flex-direction: column;
-  }
-  
-  .redeem-btn {
-    width: 100%;
-  }
+  display: none;
 }

@@ -182,13 +182,39 @@
             // Mostrar/ocultar campo de fecha según el tipo de licencia
             document.getElementById('license_type').addEventListener('change', function () {
                 const dateField = document.getElementById('license_end');
+
                 if (this.value === 'Permanente') {
                     dateField.value = '';
                     dateField.parentElement.style.display = 'none';
                 } else {
                     dateField.parentElement.style.display = 'block';
+
+                    // Calcular la fecha de finalización automáticamente
+                    const today = new Date();
+                    let endDate = new Date(today);
+
+                    if (this.value === 'Mensual') {
+                        // Añadir un mes a la fecha actual
+                        endDate.setMonth(endDate.getMonth() + 1);
+                    } else if (this.value === 'Anual') {
+                        // Añadir un año a la fecha actual
+                        endDate.setFullYear(endDate.getFullYear() + 1);
+                    }
+
+                    // Formatear la fecha como YYYY-MM-DD para el input type="date"
+                    const formattedDate = formatDateForInput(endDate);
+                    dateField.value = formattedDate;
                 }
             });
+
+            // Añadir esta función para formatear la fecha correctamente
+            function formatDateForInput(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses son 0-indexados
+                const day = String(date.getDate()).padStart(2, '0');
+
+                return `${year}-${month}-${day}`;
+            }
 
             // Guardar cambios usuario
             document.getElementById('editUserForm').addEventListener('submit', function (event) {

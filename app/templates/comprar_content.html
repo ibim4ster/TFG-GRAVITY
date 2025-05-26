@@ -14,18 +14,6 @@
 <body>
   <h2 class="centered">Compra de Licencias</h2>
 
-  <!-- Redimir código de licencia -->
-  <div class="redeem-section">
-    <h3><i class="fas fa-ticket-alt"></i> ¿Tienes un código de licencia?</h3>
-    <div class="redeem-container">
-      <input type="text" id="license-code" placeholder="Introduce tu código de licencia" maxlength="16">
-      <button id="redeem-button" class="redeem-btn">
-        <i class="fas fa-check-circle"></i> Activar
-      </button>
-    </div>
-    <div id="redeem-message" class="message-box"></div>
-  </div>
-
   <div class="license-container">
     <!-- Licencia Mensual -->
     <div class="license-card monthly">
@@ -73,15 +61,36 @@
       </div>
     </div>
   </div>
+  
   <div class="payment-text">
     <p>Se aceptan pagos con</p>
   </div>
+  
   <div class="payment-logos">
     <i class="fab fa-cc-visa" aria-hidden="true"></i>
     <i class="fab fa-cc-mastercard" aria-hidden="true"></i>
     <i class="fab fa-cc-paypal" aria-hidden="true"></i>
     <i class="fab fa-apple-pay" aria-hidden="true"></i>
     <i class="fab fa-cc-amex" aria-hidden="true"></i>
+  </div>
+
+  <!-- Redimir código de licencia (REDISEÑADO) -->
+  <div class="redeem-card">
+    <div class="redeem-header">
+      <div class="redeem-icon">
+        <i class="fas fa-ticket-alt"></i>
+      </div>
+      <h3>¿Tienes un código de licencia?</h3>
+    </div>
+    <div class="redeem-content">
+      <div class="redeem-container">
+        <input type="text" id="license-code" placeholder="Introduce tu código de licencia" maxlength="16">
+        <button id="redeem-button" class="redeem-btn">
+          Activar <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+      <div id="redeem-message" class="message-box"></div>
+    </div>
   </div>
 
   <script>
@@ -167,7 +176,7 @@
       const redeemButton = document.getElementById('redeem-button');
       if (redeemButton) {
         redeemButton.addEventListener('click', function () {
-          console.log("Botón de redención clickeado");  // Añadir para debugging
+          console.log("Botón de redención clickeado");
 
           const licenseCode = document.getElementById('license-code').value.trim();
           const messageBox = document.getElementById('redeem-message');
@@ -177,7 +186,7 @@
             return;
           }
 
-          console.log("Enviando código:", licenseCode);  // Añadir para debugging
+          console.log("Enviando código:", licenseCode);
 
           // Mostrar mensaje de carga
           messageBox.innerHTML = '<div class="info-message"><i class="fas fa-spinner fa-spin"></i> Verificando código...</div>';
@@ -190,29 +199,29 @@
             body: JSON.stringify({ codigo: licenseCode })
           })
             .then(res => {
-              console.log("Respuesta HTTP:", res.status);  // Añadir para debugging
+              console.log("Respuesta HTTP:", res.status);
               return res.json();
             })
             .then(data => {
-              console.log("Datos recibidos:", data);  // Añadir para debugging
+              console.log("Datos recibidos:", data);
 
               if (data.success) {
                 messageBox.innerHTML = '<div class="success-message"><i class="fas fa-check-circle"></i> ' + data.message + '</div>';
                 // Redirigir a la página de éxito después de 2 segundos
                 setTimeout(() => {
-                  window.location.href = "/licenses/compra_exitosa";
+                  window.location.href = "/licenses/redeem_success";
                 }, 2000);
               } else {
                 messageBox.innerHTML = '<div class="error-message"><i class="fas fa-times-circle"></i> ' + (data.error || "Error desconocido") + '</div>';
               }
             })
             .catch(error => {
-              console.error("Error en la solicitud:", error);  // Añadir para debugging
+              console.error("Error en la solicitud:", error);
               messageBox.innerHTML = '<div class="error-message"><i class="fas fa-times-circle"></i> Hubo un problema al procesar tu código. Por favor, inténtalo de nuevo.</div>';
             });
         });
       } else {
-        console.error("El botón de redención no se encontró en el DOM");  // Añadir para debugging
+        console.error("El botón de redención no se encontró en el DOM");
       }
     });
   </script>
