@@ -335,3 +335,64 @@ def fix_missing_transactions():
     
     db.session.commit()
     return jsonify(success=True, count=count, message=f"Se crearon {count} registros de transacción para licencias sin transacción.")
+
+    # Añadir esta nueva ruta a las rutas existentes
+
+@licenses.route('/redeem_code', methods=['POST'])
+@login_required
+def redeem_code():
+    """Ruta para activar una licencia utilizando un código"""
+    from datetime import date, timedelta
+    
+    try:
+        data = request.get_json()
+        codigo = data.get('codigo', '').strip().upper()  # Convertir a mayúsculas para consistencia
+        
+        if not codigo:
+            return jsonify(success=False, error="Debes proporcionar un código de licencia válido"), 400
+        
+        # Buscar la licencia por código
+        licencia = Licencia.query.filter_by(codigo=codigo, estado='Stock').first()
+        
+        if not licencia:
+            return jsonify(success=False, error="El código de licencia no es válido o ya ha sido utilizado"), 404
+        
+        # Desactivar licencias activas anteriores del usuario
+        for lic in current_user.licencias:
+            if lic.estado == 'Activa':
+                lic.estado = 'Expirada'
+        
+        # Activar la nueva licencia
+        licencia.usuario_id = current_user.id
+        licencia.estado = 'Activa'
+        licencia.fecha_inicio = date.today()
+        
+        # Establecer la fecha de fin según el tipo de licencia
+        if licencia.tipo == 'Mensual':
+            licencia.fecha_fin = date.today() + timedelta(days=30)
+        elif licencia.tipo == 'Anual':
+            licencia.fecha_fin = date.today() + timedelta(days=365)
+        elif licencia.tipo == 'Permanente':
+            licencia.fecha_fin = None
+        
+        # Crear una transacción de registro para esta activación
+        transaction = TransaccionPaypal(
+            usuario_id=current_user.id,
+            licencia_id=licencia.id,
+            paypal_transaction_id=f"CODIGO-{licencia.codigo}-{int(datetime.utcnow().timestamp())}",
+            paypal_order_id="CODIGO-REDENCION",
+            monto=0.00,  # Es gratuito porque está usando un código
+            fecha=datetime.utcnow()
+        )
+        
+        db.session.add(transaction)
+        db.session.commit()
+        
+        return jsonify(
+            success=True, 
+            message=f"¡Licencia {licencia.tipo} activada con éxito!"
+        )
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(success=False, error=f"Error al procesar el código: {str(e)}"), 500

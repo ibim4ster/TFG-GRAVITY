@@ -11,15 +11,90 @@
 </head>
 
 <body>
-    <div class="success-container">
-        <i class="fas fa-check-circle success-icon"></i>
-        <h1>¡Compra Exitosa!</h1>
-        <p>Tu licencia ha sido activada correctamente. Ahora puedes disfrutar de todas las funcionalidades disponibles.
-        </p>
-        <a href="{{ url_for('main.dashboard') }}" class="btn">
-            <i class="fas fa-home"></i> Volver al Panel de Control
-        </a>
+    <div class="welcome-header">
+        <h2 class="welcome-title">¡Compra Exitosa!</h2>
+        <p class="subtitle">Tu licencia ha sido activada correctamente</p>
     </div>
+
+    <div class="dashboard-container">
+        <!-- Tarjeta principal de éxito -->
+        <div class="card success-card">
+            <div class="card-header">
+                <div class="card-icon success-glow"><i class="fas fa-check-circle"></i></div>
+                <h3>Activación de licencia completada</h3>
+            </div>
+            <div class="success-content">
+                <div class="success-message">
+                    <p>¡Gracias por tu compra! Tu licencia de Gravity ha sido activada correctamente en tu cuenta.</p>
+                    <p>Ya puedes disfrutar de todas las funcionalidades disponibles según el plan que has adquirido.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-unlock-alt"></i></span>
+                        <span>Acceso completo</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-headset"></i></span>
+                        <span>Soporte prioritario</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-cloud-download-alt"></i></span>
+                        <span>Actualizaciones incluidas</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon"><i class="fas fa-shield-alt"></i></span>
+                        <span>Garantía de satisfacción</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="{{ url_for('main.dashboard') }}" class="btn primary-btn">
+                        <i class="fas fa-home"></i> Ir al Panel de Control
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de próximos pasos -->
+        <div class="card next-steps-card">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-rocket"></i></div>
+                <h3>Próximos pasos</h3>
+            </div>
+            <div class="guide-steps">
+                <div class="step-item">
+                    <span class="step-number">1</span>
+                    <span class="step-text">Explora tu nuevo panel de control</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">2</span>
+                    <span class="step-text">Configura tus preferencias</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">3</span>
+                    <span class="step-text">Comienza a utilizar todas las funciones</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="support-footer">
+        <p>¿Necesitas ayuda? <a href="#" class="support-link">Contacta con nuestro equipo de soporte</a></p>
+    </div>
+
+    <script>
+        // Añadir animación de entrada para los elementos
+        document.addEventListener('DOMContentLoaded', function () {
+            const elements = document.querySelectorAll('.card, .welcome-header');
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.add('visible');
+                }, index * 200);
+            });
+        });
+    </script>
 </body>
 
 </html>

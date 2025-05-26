@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Usuario</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_user.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
@@ -118,16 +118,16 @@
                 </div>
             </div>
 
-            <!-- Reemplaza la sección de transacciones con esta versión: -->
+            <!-- Reemplaza la sección de transacciones de PayPal por este código -->
 
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Transacciones de PayPal</h3>
                 </div>
 
-                <div class="transactions-table">
+                <div class="transactions-container">
                     {% if user.transacciones and user.transacciones|length > 0 %}
-                    <table class="table">
+                    <table class="transaction-table">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
@@ -139,25 +139,28 @@
                         <tbody>
                             {% for transaction in user.transacciones %}
                             <tr>
-                                <td>{{ transaction.fecha.strftime('%d-%m-%Y %H:%M') }}</td>
-                                <td>€{{ transaction.monto }}</td>
-                                <td>
+                                <td class="date-cell">{{ transaction.fecha.strftime('%d-%m-%Y %H:%M') }}</td>
+                                <td class="amount-cell">€{{ transaction.monto }}</td>
+                                <td class="license-cell">
                                     {% if transaction.licencia %}
-                                    {{ transaction.licencia.codigo }} ({{ transaction.licencia.tipo }})
+                                    <div class="license-info">
+                                        <div class="license-code">{{ transaction.licencia.codigo }}</div>
+                                        <div class="license-type">({{ transaction.licencia.tipo }})</div>
+                                    </div>
                                     {% else %}
                                     <span class="text-warning">Sin licencia asociada</span>
                                     {% endif %}
                                 </td>
-                                <td>
+                                <td class="action-cell">
                                     {% if not transaction.paypal_transaction_id.startswith('MANUAL') and not
                                     transaction.paypal_transaction_id.startswith('ADMIN') and not
                                     transaction.paypal_transaction_id.startswith('SIN') %}
                                     <a href="https://www.sandbox.paypal.com/activity/payment/{{ transaction.paypal_transaction_id }}"
-                                        target="_blank" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-file-invoice"></i> Ver Factura PayPal
+                                        target="_blank" class="invoice-btn">
+                                        <i class="fas fa-file-invoice"></i> Ver Factura
                                     </a>
                                     {% else %}
-                                    <span class="badge badge-secondary">Sin factura disponible</span>
+                                    <span class="no-invoice-badge">Sin factura disponible</span>
                                     {% endif %}
                                 </td>
                             </tr>

@@ -13,6 +13,19 @@
 
 <body>
   <h2 class="centered">Compra de Licencias</h2>
+
+  <!-- Redimir código de licencia -->
+  <div class="redeem-section">
+    <h3><i class="fas fa-ticket-alt"></i> ¿Tienes un código de licencia?</h3>
+    <div class="redeem-container">
+      <input type="text" id="license-code" placeholder="Introduce tu código de licencia" maxlength="16">
+      <button id="redeem-button" class="redeem-btn">
+        <i class="fas fa-check-circle"></i> Activar
+      </button>
+    </div>
+    <div id="redeem-message" class="message-box"></div>
+  </div>
+
   <div class="license-container">
     <!-- Licencia Mensual -->
     <div class="license-card monthly">
@@ -95,7 +108,7 @@
     }
 
     // Render PayPal buttons when page is fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Botón para Licencia Mensual (gris)
       paypal.Buttons({
         style: { layout: 'vertical', color: 'silver', shape: 'pill', label: 'paypal' },
@@ -149,6 +162,58 @@
           });
         }
       }).render('#paypal-button-container-permanente');
+
+      // Event listener for redeem button
+      const redeemButton = document.getElementById('redeem-button');
+      if (redeemButton) {
+        redeemButton.addEventListener('click', function () {
+          console.log("Botón de redención clickeado");  // Añadir para debugging
+
+          const licenseCode = document.getElementById('license-code').value.trim();
+          const messageBox = document.getElementById('redeem-message');
+
+          if (!licenseCode) {
+            messageBox.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Por favor, introduce un código de licencia válido.</div>';
+            return;
+          }
+
+          console.log("Enviando código:", licenseCode);  // Añadir para debugging
+
+          // Mostrar mensaje de carga
+          messageBox.innerHTML = '<div class="info-message"><i class="fas fa-spinner fa-spin"></i> Verificando código...</div>';
+
+          fetch('/licenses/redeem_code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ codigo: licenseCode })
+          })
+            .then(res => {
+              console.log("Respuesta HTTP:", res.status);  // Añadir para debugging
+              return res.json();
+            })
+            .then(data => {
+              console.log("Datos recibidos:", data);  // Añadir para debugging
+
+              if (data.success) {
+                messageBox.innerHTML = '<div class="success-message"><i class="fas fa-check-circle"></i> ' + data.message + '</div>';
+                // Redirigir a la página de éxito después de 2 segundos
+                setTimeout(() => {
+                  window.location.href = "/licenses/compra_exitosa";
+                }, 2000);
+              } else {
+                messageBox.innerHTML = '<div class="error-message"><i class="fas fa-times-circle"></i> ' + (data.error || "Error desconocido") + '</div>';
+              }
+            })
+            .catch(error => {
+              console.error("Error en la solicitud:", error);  // Añadir para debugging
+              messageBox.innerHTML = '<div class="error-message"><i class="fas fa-times-circle"></i> Hubo un problema al procesar tu código. Por favor, inténtalo de nuevo.</div>';
+            });
+        });
+      } else {
+        console.error("El botón de redención no se encontró en el DOM");  // Añadir para debugging
+      }
     });
   </script>
 </body>

@@ -1,57 +1,292 @@
-        body {
-            background-color: #121212;
-            color: #e0e0e0;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .success-container {
-            background-color: #1e1e1e;
-            border-radius: 12px;
-            padding: 40px;
-            max-width: 600px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
-        }
-        
-        .success-icon {
-            font-size: 5em;
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-        
-        h1 {
-            color: #ffffff;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        
-        p {
-            font-size: 1.2em;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-        
-        .btn {
-            background-color: #303f9f;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1.1em;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .btn:hover {
-            background-color: #1a237e;
-        }
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.welcome-header {
+    text-align: center;
+    margin-bottom: 30px;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.welcome-header.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.welcome-title {
+    font-size: 2.4em;
+    margin: 10px 0;
+    color: #ffffff;
+}
+
+.subtitle {
+    font-size: 1.2em;
+    color: #aaaaaa;
+    margin: 0;
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.card {
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease;
+}
+
+.card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: #292929;
+    border-bottom: 1px solid #333333;
+}
+
+.card-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #333333;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 15px;
+    color: #ffffff;
+    font-size: 1.2em;
+}
+
+.success-glow {
+    background-color: #1e4620;
+    color: #4CAF50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+    animation: pulse 2s infinite;
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 1.4em;
+    color: #ffffff;
+}
+
+.success-content,
+.guide-steps {
+    padding: 25px;
+}
+
+.success-message {
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.success-message p {
+    margin-bottom: 15px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    background-color: #272727;
+    padding: 12px 15px;
+    border-radius: 8px;
+}
+
+.feature-icon {
+    color: #4CAF50;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 20px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 1.05em;
+}
+
+.primary-btn {
+    background-color: #303f9f;
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: #3949ab;
+    transform: translateY(-3px);
+}
+
+.secondary-btn {
+    background-color: #424242;
+    color: white;
+}
+
+.secondary-btn:hover {
+    background-color: #4f4f4f;
+    transform: translateY(-3px);
+}
+
+.guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: #272727;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.step-item:hover {
+    background-color: #323232;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    background-color: #303f9f;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 12px;
+}
+
+.step-text {
+    font-weight: 500;
+}
+
+.support-footer {
+    margin-top: 40px;
+    text-align: center;
+    color: #aaaaaa;
+}
+
+.support-link {
+    color: #4fc3f7;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.support-link:hover {
+    color: #81d4fa;
+    text-decoration: underline;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    }
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .welcome-title {
+        font-size: 2em;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .dashboard-container {
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-title {
+        font-size: 1.8em;
+    }
+    
+    .subtitle {
+        font-size: 1em;
+    }
+    
+    .card-header {
+        padding: 15px;
+    }
+    
+    .success-content,
+    .guide-steps {
+        padding: 15px;
+    }
+    
+    .card-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1em;
+    }
+    
+    .card h3 {
+        font-size: 1.2em;
+    }
+}

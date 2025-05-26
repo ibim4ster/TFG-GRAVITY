@@ -25,9 +25,12 @@
 
 <body>
     <div id="content-area">
-        <h2>Admin Panel</h2>
+        <h2>Panel de Administración</h2>
         <div class="search-container">
             <input type="text" id="searchInput" class="search-input" placeholder="Buscar en la tabla...">
+            <div class="search-icon">
+                <i class="fas fa-search"></i>
+            </div>
         </div>
         <div id="userTable">
             <table>
@@ -47,14 +50,26 @@
                         <td>{{ user.id }}</td>
                         <td>{{ user.username }}</td>
                         <td>{{ user.email }}</td>
-                        <td>{{ user.rol }}</td>
+                        <td>
+                            {% if user.rol == 'Admin' %}
+                            <span class="role-badge admin">Administrador</span>
+                            {% elif user.rol == 'Vendedor' %}
+                            <span class="role-badge vendor">Vendedor</span>
+                            {% else %}
+                            <span class="role-badge client">Cliente</span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% set licencia = user.licencias|selectattr('estado', 'equalto', 'Activa')|list|first %}
-                            {{ 'Sí' if licencia else 'No' }}
+                            {% if licencia %}
+                            <span class="license-badge active"><i class="fas fa-check-circle"></i> Sí</span>
+                            {% else %}
+                            <span class="license-badge none"><i class="fas fa-times-circle"></i> No</span>
+                            {% endif %}
                         </td>
                         <td>
                             <a href="#" onclick="loadContent('edit_user/{{ user.id }}', this)" class="btn-edit">
-                                <i class="fas fa-edit"></i> Editar
+                                <i class="fas fa-edit"></i> Ver / Editar
                             </a>
                         </td>
                     </tr>
@@ -63,7 +78,6 @@
             </table>
         </div>
     </div>
-
 </body>
 
 </html>

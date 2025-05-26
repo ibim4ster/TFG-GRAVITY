@@ -294,3 +294,127 @@ h2.centered {
     font-size: 1.6em;
   }
 }
+
+/* Estilos para la sección de redención de licencias */
+.redeem-section {
+  background-color: rgba(30, 30, 30, 0.7);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 0 auto 30px;
+  max-width: 600px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.redeem-section h3 {
+  color: #ffffff;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.redeem-section h3 i {
+  color: #ffc107;
+  margin-right: 8px;
+}
+
+.redeem-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+#license-code {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 1rem;
+  padding: 12px 15px;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  text-align: center;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+#license-code:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
+}
+
+.redeem-btn {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  color: #000;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.redeem-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #ffcd38, #ffa726);
+}
+
+.redeem-btn:active {
+  transform: translateY(-1px);
+}
+
+.message-box {
+  min-height: 50px;
+  margin-top: 10px;
+}
+
+.success-message, .error-message, .info-message {
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.success-message {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.error-message {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.info-message {
+  background-color: rgba(33, 150, 243, 0.2);
+  color: #42a5f5;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+/* Responsive adjustments for redeem section */
+@media (max-width: 600px) {
+  .redeem-container {
+    flex-direction: column;
+  }
+  
+  .redeem-btn {
+    width: 100%;
+  }
+}

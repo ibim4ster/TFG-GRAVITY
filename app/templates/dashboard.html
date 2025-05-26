@@ -199,6 +199,7 @@
             // Renderizar botones PayPal si es la sección de compra
             if (section === "comprar") {
               renderPayPalButtons();
+              setupRedeemCode(); // AÑADIR ESTA LÍNEA
             }
 
             // Keep content hidden until styles are applied
@@ -318,6 +319,60 @@
           console.error("Error en la activación de licencia:", error);
           alert("Error al procesar el pago. Por favor, inténtalo de nuevo.");
         });
+    }
+    // Añade esta función en dashboard.html
+    function setupRedeemCode() {
+      const redeemButton = document.getElementById('redeem-button');
+      if (redeemButton) {
+        console.log("Inicializando botón de redención");
+        redeemButton.addEventListener('click', function () {
+          console.log("Botón de redención clickeado");
+
+          const licenseCode = document.getElementById('license-code').value.trim();
+          const messageBox = document.getElementById('redeem-message');
+
+          if (!licenseCode) {
+            messageBox.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Por favor, introduce un código de licencia válido.</div>';
+            return;
+          }
+
+          console.log("Enviando código:", licenseCode);
+
+          // Mostrar mensaje de carga
+          messageBox.innerHTML = '<div class="info-message"><i class="fas fa-spinner fa-spin"></i> Verificando código...</div>';
+
+          fetch('/licenses/redeem_code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ codigo: licenseCode })
+          })
+            .then(res => {
+              console.log("Respuesta HTTP:", res.status);
+              return res.json();
+            })
+            .then(data => {
+              console.log("Datos recibidos:", data);
+
+              if (data.success) {
+                messageBox.innerHTML = '<div class="success-message"><i class="fas fa-check-circle"></i> ' + data.message + '</div>';
+                // Redirigir a la página de éxito después de 2 segundos
+                setTimeout(() => {
+                  window.location.href = "/licenses/compra_exitosa";
+                }, 2000);
+              } else {
+                messageBox.innerHTML = '<div class="error-message"><i class="fas fa-times-circle"></i> ' + (data.error || "Error desconocido") + '</div>';
+              }
+            })
+            .catch(error => {
+              console.error("Error en la solicitud:", error);
+              messageBox.innerHTML = '<div class="error-message"><i class="fas fa-times-circle"></i> Hubo un problema al procesar tu código. Por favor, inténtalo de nuevo.</div>';
+            });
+        });
+      } else {
+        console.log("Botón de redención no encontrado");
+      }
     }
 
     // Funciones para el modal de cierre de sesión

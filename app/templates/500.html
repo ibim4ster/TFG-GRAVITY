@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Error del Servidor | Gravity</title>
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='test.png') }}" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/start_page.css') }}">
+  <style>
+    .error-container {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .error-code {
+      font-size: 8rem;
+      font-weight: bold;
+      margin: 0;
+      line-height: 1;
+      background: linear-gradient(45deg, #5433FF, #20BDFF);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .error-description {
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 500px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .error-icon {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      animation: rotate 8s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .error-code {
+        font-size: 6rem;
+      }
+
+      .error-icon {
+        font-size: 4rem;
+      }
+
+      .error-message {
+        font-size: 1.3rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .error-code {
+        font-size: 4rem;
+      }
+
+      .error-icon {
+        font-size: 3rem;
+      }
+
+      .error-message {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="error-container">
+    <div class="glass-panel" data-aos="zoom-in">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Gravity Logo">
+      </div>
+
+      <div class="error-icon">
+        <i class="fas fa-cogs"></i>
+      </div>
+
+      <h1 class="error-code">500</h1>
+      <h2 class="error-message">Error del Servidor</h2>
+      <p class="error-description">
+        Ha ocurrido un error en el servidor. Nuestro equipo técnico ha sido notificado y está trabajando para solucionarlo lo antes posible.
+      </p>
+
+      <div class="btn-group">
+        <a href="{{ url_for('main.index') }}" class="btn">
+          <i class="fas fa-home"></i>
+          Volver a Inicio
+        </a>
+        
+        <a href="javascript:history.back()" class="btn">
+          <i class="fas fa-arrow-left"></i>
+          Volver Atrás
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Inicializar AOS
+      AOS.init({
+        duration: 800,
+        once: true,
+        easing: "ease-out-quart",
+        disable: window.innerWidth < 768 ? 'mobile' : false
+      });
+    });
+  </script>
+</body>
+
+</html>
