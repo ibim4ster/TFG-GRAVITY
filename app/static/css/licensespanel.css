@@ -202,28 +202,6 @@ tr:last-child td {
   max-width: 150px;
 }
 
-/* Añadir tooltip para ver el código completo al hacer hover */
-.license-code:hover {
-  position: relative;
-  overflow: visible;
-}
-
-.license-code:hover::after {
-  content: attr(title);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: -30px;
-  background: #333;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 3px;
-  font-size: 0.85em;
-  white-space: nowrap;
-  z-index: 10;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
 /* Empty state */
 .empty-state {
   text-align: center;
