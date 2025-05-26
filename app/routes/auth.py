@@ -5,6 +5,7 @@ from datetime import datetime
 
 from app.extensions import db
 from app.models.models import Usuario
+from sqlalchemy import func
 
 auth = Blueprint('auth', __name__)
 
@@ -46,12 +47,15 @@ def login():
     if request.method == 'POST':
         username_or_email = request.form['username']
         password = request.form['password']
+        
+        # Case-insensitive query
         user = Usuario.query.filter(
             or_(
-                Usuario.email == username_or_email,
-                Usuario.username == username_or_email
+                func.lower(Usuario.email) == func.lower(username_or_email),
+                func.lower(Usuario.username) == func.lower(username_or_email)
             )
         ).first()
+        
         if user and user.check_password(password):
             if user.is_banned:
                 return render_template('banned.html')
