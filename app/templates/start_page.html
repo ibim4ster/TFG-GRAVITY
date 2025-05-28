@@ -154,22 +154,6 @@
     </p>
   </footer>
 
-  <!-- Chatbot -->
-  <div class="chatbot-container">
-    <div class="chatbot-toggle">
-      <i class="fas fa-robot"></i>
-    </div>
-    <div class="chatbot-window">
-      <div class="chatbot-header">
-        <h4>Asistente Virtual</h4>
-      </div>
-      <div class="chatbot-messages">
-        <!-- Mensajes del chat aquí -->
-      </div>
-      <input type="text" class="chatbot-input" placeholder="Escribe tu mensaje...">
-    </div>
-  </div>
-
   <!-- Scripts -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>
@@ -189,23 +173,6 @@
         once: true,
         easing: "ease-out-quart",
         disable: window.innerWidth < 768 ? 'mobile' : false
-      });
-
-      // Script para el chatbot
-      const chatbotToggle = document.querySelector(".chatbot-toggle");
-      const chatbotWindow = document.querySelector(".chatbot-window");
-
-      chatbotToggle.addEventListener("click", () => {
-        chatbotWindow.style.display =
-          chatbotWindow.style.display === "block" ? "none" : "block";
-      });
-
-      const chatbotInput = document.querySelector(".chatbot-input");
-      chatbotInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter" && chatbotInput.value.trim()) {
-          // Aquí iría la lógica para procesar el mensaje
-          chatbotInput.value = "";
-        }
       });
     });
 
