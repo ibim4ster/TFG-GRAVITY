@@ -1,5 +1,43 @@
-flask==2.3.3
-flask-sqlalchemy==3.1.1
-flask-login==0.6.3
-werkzeug==2.3.7
-pymysql==1.0.3
+# Framework principal
+Flask
+
+# Base de datos y ORM
+Flask-SQLAlchemy
+PyMySQL
+
+# Autenticación y sesiones
+Flask-Login
+Werkzeug
+
+# API de OpenAI para el chatbot
+openai
+
+# Manejo de fechas y tiempo
+python-dateutil
+
+# Encriptación y seguridad
+bcrypt
+cryptography
+
+# Utilidades
+click
+itsdangerous
+Jinja2
+MarkupSafe
+
+# Variables de entorno
+python-dotenv
+
+# Logging mejorado
+colorlog
+
+# Validación de datos
+WTForms
+Flask-WTF
+
+# CORS
+Flask-CORS
+
+# Para desarrollo y testing
+pytest
+pytest-flask
