@@ -84,17 +84,8 @@
         <p>¿Necesitas ayuda? <a href="#" class="support-link">Contacta con nuestro equipo de soporte</a></p>
     </div>
 
-    <script>
-        // Añadir animación de entrada para los elementos
-        document.addEventListener('DOMContentLoaded', function () {
-            const elements = document.querySelectorAll('.card, .welcome-header');
-            elements.forEach((el, index) => {
-                setTimeout(() => {
-                    el.classList.add('visible');
-                }, index * 200);
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/compra_exitosa.js') }}"></script>
+
 </body>
 
 </html>

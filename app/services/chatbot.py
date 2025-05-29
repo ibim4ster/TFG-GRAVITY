@@ -32,6 +32,7 @@ Gravity es una plataforma web integral diseñada para gestionar todo el ciclo de
   - Permanentes precio de 299,99€: Licencias de un solo pago que otorgan acceso de por vida al software.
 
 ### Proceso de Compra de Licencias:
+- **Activacion de Licencia con codigo**: Puedes activar una licencia desde el panel de compra introduciendo un código de licencia previamente adquirido o que se te haya proporcionado.
 - **Compra Directa**: Conoces el proceso completo para que un usuario pueda comprar una licencia directamente desde la plataforma.
 - **Proceso de Pago**: Puedes explicar cómo completar el pago mediante PayPal paso a paso.
 - **Activación Automática**: Sabes explicar cómo después de realizar el pago, la licencia se activa automáticamente en la cuenta del usuario.

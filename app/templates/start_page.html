@@ -156,28 +156,8 @@
 
   <!-- Scripts -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script>
-    function adjustViewport() {
-      const viewport = document.querySelector('meta[name="viewport"]');
-      if (window.innerWidth < 480) {
-        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-      }
-    }
+  <script src="{{ url_for('static', filename='js/start_page.js') }}"></script>
 
-    document.addEventListener('DOMContentLoaded', function () {
-      adjustViewport();
-
-      // Inicializar AOS
-      AOS.init({
-        duration: 800,
-        once: true,
-        easing: "ease-out-quart",
-        disable: window.innerWidth < 768 ? 'mobile' : false
-      });
-    });
-
-    window.addEventListener('resize', adjustViewport);
-  </script>
 </body>
 
 </html>
