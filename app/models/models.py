@@ -61,6 +61,9 @@ class MensajeTicket(db.Model):
     ticket_id = db.Column(db.Integer, db.ForeignKey('ticket.id'))
     usuario_id_autor = db.Column(db.Integer, db.ForeignKey('usuario.id'))
     
+     # AÑADIR ESTA LÍNEA para la relación con el autor del mensaje
+    autor = db.relationship('Usuario', backref=db.backref('mensajes_tickets', lazy=True))
+    
 class Conversation(db.Model):
     __tablename__ = 'conversations'
     

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Ticket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_ticket.css') }}">
+</head>
+
+<body>
+    <div class="ticket-container">
+        <div class="ticket-header">
+            <button class="btn-back" onclick="loadContent('tickets', this)">
+                <i class="fas fa-arrow-left"></i> Volver a Tickets
+            </button>
+            <h2><i class="fas fa-ticket-alt"></i> Ticket #{{ ticket.id }}</h2>
+        </div>
+
+        <div id="message-container"></div>
+
+        <!-- Información del ticket -->
+        <div class="ticket-info">
+            <div class="ticket-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Estado</div>
+                    <div class="meta-value status-{{ ticket.estado.lower().replace(' ', '-') }}">
+                        {% if ticket.estado == 'Abierto' %}
+                        <i class="fas fa-circle"></i> {{ ticket.estado }}
+                        {% elif ticket.estado == 'En progreso' %}
+                        <i class="fas fa-clock"></i> {{ ticket.estado }}
+                        {% else %}
+                        <i class="fas fa-check-circle"></i> {{ ticket.estado }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="meta-item">
+                    <div class="meta-label">Prioridad</div>
+                    <div class="meta-value priority-{{ ticket.prioridad.lower() }}">
+                        {% if ticket.prioridad == 'Alta' %}
+                        <i class="fas fa-exclamation-triangle"></i> {{ ticket.prioridad }}
+                        {% elif ticket.prioridad == 'Media' %}
+                        <i class="fas fa-minus-circle"></i> {{ ticket.prioridad }}
+                        {% else %}
+                        <i class="fas fa-chevron-down"></i> {{ ticket.prioridad }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="meta-item">
+                    <div class="meta-label">Creado por</div>
+                    <div class="meta-value">
+                        <i class="fas fa-user"></i> {{ ticket.creador.username }}
+                    </div>
+                </div>
+
+                <div class="meta-item">
+                    <div class="meta-label">Fecha de creación</div>
+                    <div class="meta-value">
+                        <i class="fas fa-calendar"></i> {{ ticket.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}
+                    </div>
+                </div>
+
+                <div class="meta-item">
+                    <div class="meta-label">Última actualización</div>
+                    <div class="meta-value">
+                        <i class="fas fa-clock"></i> {{ ticket.fecha_actualizacion.strftime('%d/%m/%Y %H:%M') }}
+                    </div>
+                </div>
+
+                {% if ticket.asignado %}
+                <div class="meta-item">
+                    <div class="meta-label">Asignado a</div>
+                    <div class="meta-value">
+                        <i class="fas fa-user-tie"></i> {{ ticket.asignado.username }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="ticket-description">
+                <div class="description-label">
+                    <i class="fas fa-file-text"></i> Descripción inicial
+                </div>
+                <div class="description-content">{{ ticket.descripcion_inicial }}</div>
+            </div>
+        </div>
+
+        <!-- Mensajes del ticket -->
+        <div class="messages-section">
+            <h3 class="section-title">
+                <i class="fas fa-comments"></i> Conversación
+            </h3>
+
+            <div id="messages-container">
+                {% if mensajes %}
+                {% for mensaje in mensajes %}
+                <div
+                    class="message {% if mensaje.autor.rol == 'Admin' %}admin-message{% else %}user-message{% endif %}">
+                    <div class="message-header">
+                        <div class="message-author">
+                            {% if mensaje.autor.rol == 'Admin' %}
+                            <i class="fas fa-user-shield"></i>
+                            {% else %}
+                            <i class="fas fa-user"></i>
+                            {% endif %}
+                            {{ mensaje.autor.username }}
+                            {% if mensaje.autor.rol == 'Admin' %}
+                            <span style="color: var(--success); font-size: 0.8rem;">(Soporte)</span>
+                            {% endif %}
+                        </div>
+                        <div class="message-date">
+                            {{ mensaje.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}
+                        </div>
+                    </div>
+                    <div class="message-content">{{ mensaje.contenido }}</div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="no-messages">
+                    <i class="fas fa-comment-slash"></i><br>
+                    No hay mensajes en este ticket aún.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Formulario para nuevo mensaje (solo si el ticket no está cerrado) -->
+        {% if ticket.estado != 'Cerrado' %}
+        <div class="new-message-form">
+            <h3 class="section-title">
+                <i class="fas fa-reply"></i> Responder
+            </h3>
+
+            <form id="messageForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="contenido">Mensaje</label>
+                    <textarea id="contenido" name="contenido" class="form-control" required
+                        placeholder="Escribe tu mensaje aquí..."></textarea>
+                </div>
+
+                <button type="button" class="btn-submit" id="submitBtn" onclick="enviarMensaje()">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar mensaje
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="new-message-form">
+            <div class="alert-message info">
+                <i class="fas fa-info-circle"></i>
+                Este ticket está cerrado. No se pueden añadir más mensajes.
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Controles de administrador -->
+        {% if current_user.rol == 'Admin' %}
+        <div class="admin-actions">
+            <h3 class="section-title">
+                <i class="fas fa-cogs"></i> Acciones de Administrador
+            </h3>
+
+            <div class="admin-controls">
+                <div class="control-group">
+                    <label for="estado">Estado</label>
+                    <select id="estado" class="select-control">
+                        <option value="Abierto" {% if ticket.estado=='Abierto' %}selected{% endif %}>Abierto</option>
+                        <option value="En progreso" {% if ticket.estado=='En progreso' %}selected{% endif %}>En progreso
+                        </option>
+                        <option value="Cerrado" {% if ticket.estado=='Cerrado' %}selected{% endif %}>Cerrado</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="prioridad">Prioridad</label>
+                    <select id="prioridad_admin" class="select-control">
+                        <option value="Baja" {% if ticket.prioridad=='Baja' %}selected{% endif %}>Baja</option>
+                        <option value="Media" {% if ticket.prioridad=='Media' %}selected{% endif %}>Media</option>
+                        <option value="Alta" {% if ticket.prioridad=='Alta' %}selected{% endif %}>Alta</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="asignado">Asignar a</label>
+                    <select id="asignado" class="select-control">
+                        <option value="">Sin asignar</option>
+                        {% for usuario in usuarios %}
+                        {% if usuario.rol == 'Admin' %}
+                        <option value="{{ usuario.id }}" {% if ticket.usuario_id_asignado==usuario.id %}selected{% endif
+                            %}>
+                            {{ usuario.username }}
+                        </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button class="btn-action btn-update" onclick="updateTicket()">
+                    <i class="fas fa-save"></i> Actualizar
+                </button>
+
+                <button class="btn-action btn-delete" onclick="deleteTicket()">
+                    <i class="fas fa-trash"></i> Eliminar Ticket
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // DECLARAR FUNCIONES GLOBALES INMEDIATAMENTE (antes del DOMContentLoaded)
+        window.ticketId = parseInt('{{ ticket.id }}');
+
+        // Función específica para enviar mensajes
+        function enviarMensaje() {
+            const messageContainer = document.getElementById('message-container');
+            const contenido = document.getElementById('contenido').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!contenido) {
+                messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-exclamation-circle"></i> El mensaje no puede estar vacío</div>';
+                return false;
+            }
+
+            // Deshabilitar botón
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            const formData = new FormData();
+            formData.append('contenido', contenido);
+
+            fetch('/tickets/add_message/' + window.ticketId, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        messageContainer.innerHTML = '<div class="alert-message success"><i class="fas fa-check-circle"></i> Mensaje enviado correctamente</div>';
+                        document.getElementById('contenido').value = '';
+
+                        // Recargar solo la vista del ticket sin cambiar de página
+                        setTimeout(() => {
+                            if (typeof loadContent === 'function') {
+                                loadContent('view_ticket/' + window.ticketId, null);
+                            } else {
+                                window.location.reload();
+                            }
+                        }, 1000);
+
+                        // Limpiar el mensaje de éxito después de 3 segundos
+                        setTimeout(() => {
+                            if (messageContainer) {
+                                messageContainer.innerHTML = '';
+                            }
+                        }, 3000);
+                    } else {
+                        messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error: ' + (data.error || 'No se pudo enviar el mensaje') + '</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error de conexión al enviar el mensaje</div>';
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar mensaje';
+                });
+
+            return false;
+        }
+
+        // Función global para actualizar ticket
+        window.updateTicket = function () {
+            const messageContainer = document.getElementById('message-container');
+            const estado = document.getElementById('estado').value;
+            const prioridad = document.getElementById('prioridad_admin').value;
+            const asignado = document.getElementById('asignado').value;
+
+            // Validaciones básicas
+            if (!estado || !prioridad) {
+                messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-exclamation-circle"></i> Estado y prioridad son obligatorios</div>';
+                return;
+            }
+
+            // Deshabilitar botón temporalmente
+            const updateBtn = document.querySelector('.btn-update');
+            const originalText = updateBtn.innerHTML;
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+
+            // Preparar datos
+            const data = {
+                estado: estado,
+                prioridad: prioridad,
+                asignado: asignado || null
+            };
+
+            console.log('Enviando datos de actualización:', data);
+
+            fetch('/tickets/update/' + window.ticketId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    console.log('Respuesta recibida:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Datos de respuesta:', data);
+                    if (data.success) {
+                        messageContainer.innerHTML = '<div class="alert-message success"><i class="fas fa-check-circle"></i> Ticket actualizado correctamente</div>';
+
+                        // Recargar la vista del ticket después de 1 segundo
+                        setTimeout(() => {
+                            if (typeof loadContent === 'function') {
+                                loadContent('view_ticket/' + window.ticketId, null);
+                            } else {
+                                window.location.reload();
+                            }
+                        }, 1000);
+                    } else {
+                        messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error: ' + (data.error || 'No se pudo actualizar') + '</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error completo:', error);
+                    messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error de conexión: ' + error.message + '</div>';
+                })
+                .finally(() => {
+                    updateBtn.disabled = false;
+                    updateBtn.innerHTML = originalText;
+                });
+        };
+
+        // Función global para eliminar ticket
+        window.deleteTicket = function () {
+            if (confirm('¿Estás seguro de que quieres eliminar este ticket? Esta acción no se puede deshacer.')) {
+                const messageContainer = document.getElementById('message-container');
+
+                // Deshabilitar botón temporalmente
+                const deleteBtn = document.querySelector('.btn-delete');
+                const originalText = deleteBtn.innerHTML;
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+
+                console.log('Eliminando ticket:', window.ticketId);
+
+                fetch('/tickets/delete/' + window.ticketId, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        console.log('Respuesta de eliminación:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Resultado de eliminación:', data);
+                        if (data.success) {
+                            messageContainer.innerHTML = '<div class="alert-message success"><i class="fas fa-check-circle"></i> Ticket eliminado correctamente</div>';
+
+                            // Redirigir al panel de tickets después de 1.5 segundos
+                            setTimeout(() => {
+                                if (typeof loadContent === 'function') {
+                                    loadContent('tickets', null);
+                                } else {
+                                    window.location.href = '/tickets/panel';
+                                }
+                            }, 1500);
+                        } else {
+                            messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error: ' + (data.error || 'No se pudo eliminar') + '</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error de eliminación:', error);
+                        messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error de conexión: ' + error.message + '</div>';
+                    })
+                    .finally(() => {
+                        deleteBtn.disabled = false;
+                        deleteBtn.innerHTML = originalText;
+                    });
+            }
+        };
+
+        // Función global para recargar mensajes
+        window.reloadMessages = function () {
+            fetch('/tickets/get_ticket_data/' + window.ticketId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const messagesContainer = document.getElementById('messages-container');
+
+                        if (data.ticket.mensajes && data.ticket.mensajes.length > 0) {
+                            let messagesHTML = '';
+                            data.ticket.mensajes.forEach(mensaje => {
+                                const messageClass = mensaje.es_admin ? 'admin-message' : 'user-message';
+                                const iconClass = mensaje.es_admin ? 'fas fa-user-shield' : 'fas fa-user';
+                                const soporteTag = mensaje.es_admin ? '<span style="color: var(--success); font-size: 0.8rem;">(Soporte)</span>' : '';
+
+                                messagesHTML += `
+                        <div class="message ${messageClass}">
+                            <div class="message-header">
+                                <div class="message-author">
+                                    <i class="${iconClass}"></i>
+                                    ${mensaje.autor}
+                                    ${soporteTag}
+                                </div>
+                                <div class="message-date">
+                                    ${mensaje.fecha}
+                                </div>
+                            </div>
+                            <div class="message-content">${mensaje.contenido}</div>
+                        </div>
+                    `;
+                            });
+                            messagesContainer.innerHTML = messagesHTML;
+                        } else {
+                            messagesContainer.innerHTML = `
+                    <div class="no-messages">
+                        <i class="fas fa-comment-slash"></i><br>
+                        No hay mensajes en este ticket aún.
+                    </div>
+                `;
+                        }
+
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al recargar mensajes:', error);
+                });
+        };
+
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOM loaded, ticketId:', window.ticketId);
+            console.log('updateTicket function:', typeof window.updateTicket);
+            console.log('deleteTicket function:', typeof window.deleteTicket);
+
+            // Ya no necesitamos el event listener aquí porque usamos onclick="enviarMensaje()"
+        });
+    </script>
+</body>
+
+</html>

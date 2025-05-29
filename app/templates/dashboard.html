@@ -9,11 +9,18 @@
     src="https://www.paypal.com/sdk/js?client-id=AdpjRg5ECfhso6v2KbOsKg1MVsEj3hVW_-ccmm3z9zaQzLGZJhsaUTCiac1VQO1j9-R5O_U_ggAgqvpU&currency=USD"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-  <!-- Preload common CSS files to prevent FOUC -->
+  <!-- Precargar los estilos de css para mejorar rendimiento de la aplicación web -->
+  <link rel="preload" href="{{ url_for('static', filename='css/dashboard.css') }}" as="style">
   <link rel="preload" href="{{ url_for('static', filename='css/dashboard_content.css') }}" as="style">
   <link rel="preload" href="{{ url_for('static', filename='css/comprar_content.css') }}" as="style">
   <link rel="preload" href="{{ url_for('static', filename='css/compra_exitosa.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/licensespanel.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/edit_license.css') }}" as="style">
   <link rel="preload" href="{{ url_for('static', filename='css/admin_panel.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/edit_user.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/tickets_panel.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/create_ticket.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/view_ticket.css') }}" as="style">
   <link rel="preload" href="{{ url_for('static', filename='css/configuracion_content.css') }}" as="style">
   <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='test.png') }}" />
 </head>
@@ -50,6 +57,10 @@
         <i class="fas fa-user-shield"></i> <span>Admin Panel</span>
       </a>
       {% endif %}
+      <!-- TICKETS ANTES DE CONFIGURACIÓN -->
+      <a href="#" onclick="loadContent('tickets', this); toggleMobileMenu();">
+        <i class="fas fa-ticket-alt"></i> <span>Tickets/Soporte</span>
+      </a>
       <a href="#" onclick="loadContent('configuracion', this); toggleMobileMenu();">
         <i class="fas fa-cog"></i> <span>Configuración</span>
       </a>
@@ -113,8 +124,14 @@
         }
       });
 
-      // Load default content
-      loadContent("dashboard", document.querySelector(".sidebar a"));
+      // Verificar si hay un hash en la URL para cargar automáticamente
+      const hash = window.location.hash.substring(1); // Quitar el #
+      if (hash === 'tickets') {
+        loadContent('tickets', document.querySelector('.sidebar a[onclick*="tickets"]'));
+      } else {
+        // Load default content
+        loadContent("dashboard", document.querySelector(".sidebar a"));
+      }
     });
 
     function toggleMobileMenu() {
@@ -185,6 +202,7 @@
             // Animación de entrada
             contentArea.classList.add("slide-in-down-animation");
 
+            // Inicializar funciones específicas según la sección cargada
             if (section === "adminpanel") {
               initSearch();
             }
@@ -201,7 +219,26 @@
             // Renderizar botones PayPal si es la sección de compra
             if (section === "comprar") {
               renderPayPalButtons();
-              setupRedeemCode(); // AÑADIR ESTA LÍNEA
+              setupRedeemCode();
+            }
+
+            // --- INICIALIZAR EVENTOS DE TICKETS ---
+            if (section === "tickets") {
+              initTicketsEvents();
+            }
+
+            if (section === "create_ticket") {
+              initCreateTicketEvents();
+            }
+
+            // MODIFICACIÓN IMPORTANTE: Solo inicializar dashboard events si no hay funciones globales
+            if (section.startsWith("view_ticket/")) {
+              // Esperar un poco para que view_ticket.html se cargue completamente
+              setTimeout(() => {
+                if (!window.updateTicket || !window.deleteTicket) {
+                  initViewTicketEvents();
+                }
+              }, 200);
             }
 
             // Keep content hidden until styles are applied
@@ -220,6 +257,336 @@
         });
     }
 
+    // === FUNCIONES PARA TICKETS ===
+    function initTicketsEvents() {
+      // Búsqueda de tickets
+      const searchInput = document.getElementById('searchTickets');
+      if (searchInput) {
+        searchInput.addEventListener('input', function () {
+          const filter = this.value.toLowerCase();
+          const rows = document.querySelectorAll('.tickets-table tbody tr');
+
+          rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+          });
+        });
+      }
+    }
+
+    function initCreateTicketEvents() {
+      // Contador de caracteres para el título
+      const tituloInput = document.getElementById('titulo');
+      if (tituloInput) {
+        tituloInput.addEventListener('input', function () {
+          const current = this.value.length;
+          const max = 200;
+          const counter = document.getElementById('titulo-counter');
+          if (counter) {
+            counter.textContent = `${current}/${max} caracteres`;
+
+            if (current > max * 0.9) {
+              counter.className = 'char-counter danger';
+            } else if (current > max * 0.7) {
+              counter.className = 'char-counter warning';
+            } else {
+              counter.className = 'char-counter';
+            }
+          }
+        });
+
+        // Inicializar contador
+        const event = new Event('input');
+        tituloInput.dispatchEvent(event);
+      }
+
+      // MANEJO DEL FORMULARIO DE CREAR TICKET
+      const form = document.getElementById('createTicketForm');
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const formData = new FormData(this);
+          const submitBtn = this.querySelector('.btn-submit');
+          const originalText = submitBtn.innerHTML;
+          const messageContainer = document.getElementById('message-container');
+
+          // Validar campos requeridos
+          const titulo = document.getElementById('titulo').value.trim();
+          const descripcion = document.getElementById('descripcion').value.trim();
+
+          if (!titulo || !descripcion) {
+            if (messageContainer) {
+              messageContainer.innerHTML = `
+                <div class="message error">
+                  <i class="fas fa-exclamation-circle"></i>
+                  Título y descripción son obligatorios
+                </div>
+              `;
+            }
+            return false;
+          }
+
+          // Deshabilitar botón
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando...';
+
+          fetch('/tickets/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams(formData)
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.success) {
+                if (messageContainer) {
+                  messageContainer.innerHTML = `
+                  <div class="message success">
+                    <i class="fas fa-check-circle"></i>
+                    ${data.message || 'Ticket creado exitosamente'}
+                  </div>
+                `;
+                }
+
+                // Limpiar formulario
+                this.reset();
+                const counter = document.getElementById('titulo-counter');
+                if (counter) {
+                  counter.textContent = '0/200 caracteres';
+                  counter.className = 'char-counter';
+                }
+
+                // Redirigir a tickets después de 1.5 segundos
+                setTimeout(() => {
+                  loadContent('tickets', null);
+                }, 1500);
+              } else {
+                if (messageContainer) {
+                  messageContainer.innerHTML = `
+                  <div class="message error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    ${data.error || 'Error al crear el ticket'}
+                  </div>
+                `;
+                }
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              if (messageContainer) {
+                messageContainer.innerHTML = `
+                <div class="message error">
+                  <i class="fas fa-exclamation-circle"></i>
+                  Error al conectar con el servidor. Por favor, inténtalo de nuevo.
+                </div>
+              `;
+              }
+            })
+            .finally(() => {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalText;
+            });
+
+          return false;
+        });
+      }
+    }
+
+    function initViewTicketEvents() {
+      // Solo manejar eventos si no están ya definidos en view_ticket.html
+      const messageForm = document.getElementById('messageForm');
+
+      // Si ya existe el ticketId global y las funciones están definidas, no hacer nada más
+      if (window.ticketId && window.updateTicket && window.deleteTicket) {
+        return;
+      }
+
+      // Solo procesar formulario de mensajes si no está ya manejado
+      if (messageForm && !messageForm.hasAttribute('data-dashboard-handled')) {
+        messageForm.setAttribute('data-dashboard-handled', 'true');
+
+        messageForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const submitBtn = this.querySelector('.btn-submit');
+          const originalText = submitBtn.innerHTML;
+          const messageContainer = document.getElementById('message-container');
+          const contenido = document.getElementById('contenido').value.trim();
+
+          if (!contenido) {
+            if (messageContainer) {
+              messageContainer.innerHTML = `
+            <div class="alert-message error">
+              <i class="fas fa-exclamation-circle"></i>
+              El mensaje no puede estar vacío
+            </div>
+          `;
+            }
+            return false;
+          }
+
+          // Deshabilitar botón y mostrar estado de carga
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+          // Obtener el ID del ticket
+          let ticketId = null;
+
+          if (window.ticketId) {
+            ticketId = window.ticketId;
+          } else {
+            const ticketHeader = document.querySelector('.ticket-header h2');
+            if (ticketHeader) {
+              const match = ticketHeader.textContent.match(/Ticket #(\d+)/);
+              if (match) {
+                ticketId = match[1];
+              }
+            }
+          }
+
+          if (!ticketId) {
+            if (messageContainer) {
+              messageContainer.innerHTML = `
+            <div class="alert-message error">
+              <i class="fas fa-exclamation-circle"></i>
+              Error: No se pudo identificar el ticket
+            </div>
+          `;
+            }
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+            return false;
+          }
+
+          const formData = new FormData();
+          formData.append('contenido', contenido);
+
+          fetch('/tickets/add_message/' + ticketId, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.success) {
+                document.getElementById('contenido').value = '';
+
+                if (messageContainer) {
+                  messageContainer.innerHTML = `
+              <div class="alert-message success">
+                <i class="fas fa-check-circle"></i>
+                Mensaje enviado correctamente
+              </div>
+            `;
+                }
+
+                // Recargar la vista del ticket
+                setTimeout(() => {
+                  loadContent('view_ticket/' + ticketId, null);
+                }, 1000);
+
+                setTimeout(() => {
+                  if (messageContainer) {
+                    messageContainer.innerHTML = '';
+                  }
+                }, 3000);
+              } else {
+                if (messageContainer) {
+                  messageContainer.innerHTML = `
+              <div class="alert-message error">
+                <i class="fas fa-times-circle"></i>
+                Error: ${data.error || 'No se pudo enviar el mensaje'}
+              </div>
+            `;
+                }
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              if (messageContainer) {
+                messageContainer.innerHTML = `
+            <div class="alert-message error">
+              <i class="fas fa-times-circle"></i>
+              Error de conexión al enviar el mensaje
+            </div>
+          `;
+              }
+            })
+            .finally(() => {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalText;
+            });
+
+          return false;
+        });
+      }
+    }
+
+    // Función para mostrar mensajes en tickets
+    function showTicketMessage(message, type) {
+      const messageContainer = document.getElementById('message-container');
+      if (messageContainer) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert-message ${type}`;
+        alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+
+        messageContainer.innerHTML = '';
+        messageContainer.appendChild(alertDiv);
+
+        // Scroll to top para ver el mensaje
+        window.scrollTo(0, 0);
+
+        // Remover mensaje después de 5 segundos
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 5000);
+      }
+    }
+
+    // Función para eliminar ticket desde el panel (solo admin)
+    function deleteTicketFromPanel(ticketId) {
+      if (confirm('¿Estás seguro de que deseas eliminar este ticket? Esta acción no se puede deshacer.')) {
+        fetch(`/tickets/delete/${ticketId}`, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Recargar la página de tickets
+              loadContent('tickets', null);
+            } else {
+              alert('Error al eliminar el ticket: ' + (data.error || 'Error desconocido'));
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error de conexión al eliminar el ticket');
+          });
+      }
+    }
+
+    // === RESTO DE FUNCIONES EXISTENTES ===
+
     // Función para renderizar los botones de PayPal
     function renderPayPalButtons() {
       if (document.getElementById('paypal-button-container-mensual')) {
@@ -235,18 +602,15 @@
           },
           onApprove: function (data, actions) {
             return actions.order.capture().then(function (details) {
-              // Extraer información importante de la transacción
               const transactionId = details.purchase_units[0].payments.captures[0].id;
               const orderId = data.orderID;
               const amount = details.purchase_units[0].amount.value;
-
               activarLicencia('Mensual', orderId, transactionId, amount);
             });
           }
         }).render('#paypal-button-container-mensual');
       }
 
-      // Botón para licencia anual
       if (document.getElementById('paypal-button-container-anual')) {
         paypal.Buttons({
           style: { layout: 'vertical', color: 'blue', shape: 'pill', label: 'paypal' },
@@ -260,11 +624,9 @@
           },
           onApprove: function (data, actions) {
             return actions.order.capture().then(function (details) {
-              // Extraer información importante de la transacción
               const transactionId = details.purchase_units[0].payments.captures[0].id;
               const orderId = data.orderID;
               const amount = details.purchase_units[0].amount.value;
-
               activarLicencia('Anual', orderId, transactionId, amount);
             });
           }
@@ -284,11 +646,9 @@
           },
           onApprove: function (data, actions) {
             return actions.order.capture().then(function (details) {
-              // Extraer información importante de la transacción
               const transactionId = details.purchase_units[0].payments.captures[0].id;
               const orderId = data.orderID;
               const amount = details.purchase_units[0].amount.value;
-
               activarLicencia('Permanente', orderId, transactionId, amount);
             });
           }
@@ -322,7 +682,7 @@
           alert("Error al procesar el pago. Por favor, inténtalo de nuevo.");
         });
     }
-    // Añade esta función en dashboard.html
+
     function setupRedeemCode() {
       const redeemButton = document.getElementById('redeem-button');
       if (redeemButton) {
@@ -340,7 +700,6 @@
 
           console.log("Enviando código:", licenseCode);
 
-          // Mostrar mensaje de carga
           messageBox.innerHTML = '<div class="info-message"><i class="fas fa-spinner fa-spin"></i> Verificando código...</div>';
 
           fetch('/licenses/redeem_code', {
@@ -359,7 +718,6 @@
 
               if (data.success) {
                 messageBox.innerHTML = '<div class="success-message"><i class="fas fa-check-circle"></i> ' + data.message + '</div>';
-                // Redirigir a la página de éxito después de 2 segundos
                 setTimeout(() => {
                   window.location.href = "/licenses/compra_exitosa";
                 }, 2000);
@@ -394,24 +752,26 @@
       const searchInput = document.getElementById("searchInput");
       const table = document.getElementById("userTable");
 
-      searchInput.addEventListener("input", function () {
-        const filter = searchInput.value.toLowerCase();
-        const rows = table.getElementsByTagName("tr");
+      if (searchInput && table) {
+        searchInput.addEventListener("input", function () {
+          const filter = searchInput.value.toLowerCase();
+          const rows = table.getElementsByTagName("tr");
 
-        for (let i = 1; i < rows.length; i++) {
-          const cells = rows[i].getElementsByTagName("td");
-          let found = false;
+          for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName("td");
+            let found = false;
 
-          for (let j = 0; j < cells.length; j++) {
-            if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
-              found = true;
-              break;
+            for (let j = 0; j < cells.length; j++) {
+              if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
+                found = true;
+                break;
+              }
             }
-          }
 
-          rows[i].style.display = found ? "" : "none";
-        }
-      });
+            rows[i].style.display = found ? "" : "none";
+          }
+        });
+      }
     }
 
     // Manejar la eliminación de usuario
@@ -436,7 +796,7 @@
               if (data.success) {
                 loadContent(
                   "adminpanel",
-                  document.querySelector('.sidebar a[href*="adminpanel"]')
+                  document.querySelector('.sidebar a[onclick*="adminpanel"]')
                 );
               } else {
                 alert("Error al eliminar el usuario: " + data.error);
@@ -467,7 +827,7 @@
             if (data.success) {
               loadContent(
                 "adminpanel",
-                document.querySelector('.sidebar a[href*="adminpanel"]')
+                document.querySelector('.sidebar a[onclick*="adminpanel"]')
               );
             } else {
               alert(
@@ -483,9 +843,7 @@
       }
     });
 
-    // --- ACTIVAR EVENTOS DE ASIGNAR LICENCIA ---
     function activarEventosEditUser() {
-      // Asignar licencia
       const assignBtn = document.getElementById('assignLicenseBtn');
       if (assignBtn) {
         assignBtn.addEventListener('click', function () {
@@ -520,7 +878,6 @@
             });
         });
 
-        // Habilitar/deshabilitar fecha fin según tipo y calcular automáticamente
         document.getElementById('license_type').addEventListener('change', function () {
           const dateField = document.getElementById('license_end');
 
@@ -530,19 +887,15 @@
           } else {
             dateField.parentElement.style.display = 'block';
 
-            // Calcular la fecha de finalización automáticamente
             const today = new Date();
             let endDate = new Date(today);
 
             if (this.value === 'Mensual') {
-              // Añadir un mes a la fecha actual
               endDate.setMonth(endDate.getMonth() + 1);
             } else if (this.value === 'Anual') {
-              // Añadir un año a la fecha actual
               endDate.setFullYear(endDate.getFullYear() + 1);
             }
 
-            // Formatear la fecha como YYYY-MM-DD para el input type="date"
             const year = endDate.getFullYear();
             const month = String(endDate.getMonth() + 1).padStart(2, '0');
             const day = String(endDate.getDate()).padStart(2, '0');
@@ -551,7 +904,6 @@
         });
       }
 
-      // Quitar licencia activa
       const revokeBtn = document.getElementById('revokeLicenseBtn');
       if (revokeBtn) {
         revokeBtn.addEventListener('click', function () {
@@ -575,6 +927,7 @@
         });
       }
     }
+
     // Manejar el envío del formulario de edición de licencia
     document.addEventListener("submit", function (event) {
       if (event.target.matches("#editLicenseForm")) {
@@ -585,7 +938,7 @@
         fetch(`/licenses/update/${licenseId}`, {
           method: "POST",
           headers: {
-            'X-Requested-With': 'XMLHttpRequest'  // Añadir este encabezado
+            'X-Requested-With': 'XMLHttpRequest'
           },
           body: formData
         })
@@ -594,7 +947,7 @@
             if (data.success) {
               loadContent(
                 "licensespanel",
-                document.querySelector('.sidebar a[href*="licensespanel"]')
+                document.querySelector('.sidebar a[onclick*="licensespanel"]')
               );
             } else {
               alert(
@@ -610,7 +963,7 @@
       }
     });
 
-    // Manejar la eliminación de licencia desde el botón deleteLicenseBtn
+    // Manejar la eliminación de licencia
     document.addEventListener("click", function (event) {
       if (event.target.matches("#deleteLicenseBtn")) {
         const licenseId = event.target.dataset.licenseId;
@@ -628,7 +981,7 @@
               if (data.success) {
                 loadContent(
                   "licensespanel",
-                  document.querySelector('.sidebar a[href*="licensespanel"]')
+                  document.querySelector('.sidebar a[onclick*="licensespanel"]')
                 );
               } else {
                 alert("Error al eliminar la licencia: " + data.error);
@@ -642,7 +995,8 @@
       }
     });
 
-    // Eliminar licencia desde licesespanel.html usando btn-delete
+    // Reemplaza la función completa:
+
     document.addEventListener("click", function (event) {
       if (event.target.matches(".btn-delete") || event.target.closest(".btn-delete")) {
         const btn = event.target.closest(".btn-delete");
@@ -689,7 +1043,7 @@
             if (data.success) {
               loadContent(
                 "licensespanel",
-                document.querySelector('.sidebar a[href*="licensespanel"]')
+                document.querySelector('.sidebar a[onclick*="licensespanel"]')
               );
             } else {
               alert(
@@ -705,7 +1059,6 @@
       }
     });
 
-    // Inicializar la búsqueda de licencias
     function initLicenseSearch() {
       const searchInput = document.getElementById("searchLicenses");
       const table = document.querySelector(".license-table");
@@ -715,7 +1068,7 @@
         const filter = searchInput.value.toLowerCase();
         const rows = table.getElementsByTagName("tr");
 
-        for (let i = 1; i < rows.length; i++) { // Empieza en 1 para saltar el header
+        for (let i = 1; i < rows.length; i++) {
           const cells = rows[i].getElementsByTagName("td");
           let found = false;
 
@@ -730,6 +1083,256 @@
         }
       });
     }
+    // === FUNCIONES GLOBALES PARA TICKETS (FALLBACK) ===
+
+    // Función global para enviar mensajes (fallback)
+    if (typeof window.enviarMensaje === 'undefined') {
+      window.enviarMensaje = function () {
+        const messageContainer = document.getElementById('message-container');
+        const contenido = document.getElementById('contenido').value.trim();
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (!contenido) {
+          messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-exclamation-circle"></i> El mensaje no puede estar vacío</div>';
+          return false;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+        let ticketId = window.ticketId;
+        if (!ticketId) {
+          const ticketHeader = document.querySelector('.ticket-header h2');
+          if (ticketHeader) {
+            const match = ticketHeader.textContent.match(/Ticket #(\d+)/);
+            if (match) {
+              ticketId = match[1];
+            }
+          }
+        }
+
+        if (!ticketId) {
+          messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-exclamation-circle"></i> Error: No se pudo identificar el ticket</div>';
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar mensaje';
+          return false;
+        }
+
+        const formData = new FormData();
+        formData.append('contenido', contenido);
+
+        fetch('/tickets/add_message/' + ticketId, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: formData
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              messageContainer.innerHTML = '<div class="alert-message success"><i class="fas fa-check-circle"></i> Mensaje enviado correctamente</div>';
+              document.getElementById('contenido').value = '';
+
+              setTimeout(() => {
+                if (typeof loadContent === 'function') {
+                  loadContent('view_ticket/' + ticketId, null);
+                } else {
+                  window.location.reload();
+                }
+              }, 1000);
+
+              setTimeout(() => {
+                if (messageContainer) {
+                  messageContainer.innerHTML = '';
+                }
+              }, 3000);
+            } else {
+              messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error: ' + (data.error || 'No se pudo enviar el mensaje') + '</div>';
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error de conexión al enviar el mensaje</div>';
+          })
+          .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar mensaje';
+          });
+
+        return false;
+      };
+    }
+
+    // Función global para actualizar ticket (fallback)
+    if (typeof window.updateTicket === 'undefined') {
+      window.updateTicket = function () {
+        const messageContainer = document.getElementById('message-container');
+        const estado = document.getElementById('estado').value;
+        const prioridad = document.getElementById('prioridad_admin').value;
+        const asignado = document.getElementById('asignado').value;
+
+        // Validaciones básicas
+        if (!estado || !prioridad) {
+          messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-exclamation-circle"></i> Estado y prioridad son obligatorios</div>';
+          return;
+        }
+
+        // Deshabilitar botón temporalmente
+        const updateBtn = document.querySelector('.btn-update');
+        const originalText = updateBtn.innerHTML;
+        updateBtn.disabled = true;
+        updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+
+        // Preparar datos
+        const data = {
+          estado: estado,
+          prioridad: prioridad,
+          asignado: asignado || null
+        };
+
+        let ticketId = window.ticketId;
+        if (!ticketId) {
+          const ticketHeader = document.querySelector('.ticket-header h2');
+          if (ticketHeader) {
+            const match = ticketHeader.textContent.match(/Ticket #(\d+)/);
+            if (match) {
+              ticketId = match[1];
+            }
+          }
+        }
+
+        if (!ticketId) {
+          messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-exclamation-circle"></i> Error: No se pudo identificar el ticket</div>';
+          updateBtn.disabled = false;
+          updateBtn.innerHTML = originalText;
+          return;
+        }
+
+        console.log('Enviando datos de actualización:', data);
+
+        fetch('/tickets/update/' + ticketId, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify(data)
+        })
+          .then(response => {
+            console.log('Respuesta recibida:', response.status);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Datos de respuesta:', data);
+            if (data.success) {
+              messageContainer.innerHTML = '<div class="alert-message success"><i class="fas fa-check-circle"></i> Ticket actualizado correctamente</div>';
+
+              // Recargar la vista del ticket después de 1 segundo
+              setTimeout(() => {
+                if (typeof loadContent === 'function') {
+                  loadContent('view_ticket/' + ticketId, null);
+                } else {
+                  window.location.reload();
+                }
+              }, 1000);
+            } else {
+              messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error: ' + (data.error || 'No se pudo actualizar') + '</div>';
+            }
+          })
+          .catch(error => {
+            console.error('Error completo:', error);
+            messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error de conexión: ' + error.message + '</div>';
+          })
+          .finally(() => {
+            updateBtn.disabled = false;
+            updateBtn.innerHTML = originalText;
+          });
+      };
+    }
+
+    // Función global para eliminar ticket (fallback)
+    if (typeof window.deleteTicket === 'undefined') {
+      window.deleteTicket = function () {
+        if (confirm('¿Estás seguro de que quieres eliminar este ticket? Esta acción no se puede deshacer.')) {
+          const messageContainer = document.getElementById('message-container');
+
+          // Deshabilitar botón temporalmente
+          const deleteBtn = document.querySelector('.btn-delete');
+          const originalText = deleteBtn.innerHTML;
+          deleteBtn.disabled = true;
+          deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+
+          let ticketId = window.ticketId;
+          if (!ticketId) {
+            const ticketHeader = document.querySelector('.ticket-header h2');
+            if (ticketHeader) {
+              const match = ticketHeader.textContent.match(/Ticket #(\d+)/);
+              if (match) {
+                ticketId = match[1];
+              }
+            }
+          }
+
+          if (!ticketId) {
+            messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-exclamation-circle"></i> Error: No se pudo identificar el ticket</div>';
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = originalText;
+            return;
+          }
+
+          console.log('Eliminando ticket:', ticketId);
+
+          fetch('/tickets/delete/' + ticketId, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+            .then(response => {
+              console.log('Respuesta de eliminación:', response.status);
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log('Resultado de eliminación:', data);
+              if (data.success) {
+                messageContainer.innerHTML = '<div class="alert-message success"><i class="fas fa-check-circle"></i> Ticket eliminado correctamente</div>';
+
+                // Redirigir al panel de tickets después de 1.5 segundos
+                setTimeout(() => {
+                  if (typeof loadContent === 'function') {
+                    loadContent('tickets', null);
+                  } else {
+                    window.location.href = '/tickets/panel';
+                  }
+                }, 1500);
+              } else {
+                messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error: ' + (data.error || 'No se pudo eliminar') + '</div>';
+              }
+            })
+            .catch(error => {
+              console.error('Error de eliminación:', error);
+              messageContainer.innerHTML = '<div class="alert-message error"><i class="fas fa-times-circle"></i> Error de conexión: ' + error.message + '</div>';
+            })
+            .finally(() => {
+              deleteBtn.disabled = false;
+              deleteBtn.innerHTML = originalText;
+            });
+        }
+      };
+    }
+    // === FIN DE FUNCIONES GLOBALES PARA TICKETS ===  
   </script>
 </body>
 

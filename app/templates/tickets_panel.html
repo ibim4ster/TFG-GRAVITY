@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets/Soporte</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tickets_panel.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <div class="tickets-container">
+        <div class="page-header">
+            <h2><i class="fas fa-ticket-alt"></i> Gestión de Tickets</h2>
+            <button class="btn-create" onclick="loadContent('create_ticket', this)">
+                <i class="fas fa-plus"></i> Crear Nuevo Ticket
+            </button>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchTickets" class="search-input"
+                    placeholder="Buscar tickets por ID, título, estado...">
+            </div>
+        </div>
+
+        <div class="tickets-table-container">
+            {% if tickets %}
+            <table class="tickets-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Creado por</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td class="ticket-id">#{{ ticket.id }}</td>
+                        <td class="ticket-title" title="{{ ticket.titulo }}">{{ ticket.titulo }}</td>
+                        <td>
+                            <span class="priority-badge priority-{{ ticket.prioridad.lower() }}">
+                                <i class="fas fa-circle"></i>
+                                {{ ticket.prioridad }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ ticket.estado.lower().replace(' ', '-') }}">
+                                <i class="fas fa-circle"></i>
+                                {{ ticket.estado }}
+                            </span>
+                        </td>
+                        <td class="user-text">{{ ticket.creador.username if ticket.creador else 'Usuario eliminado' }}
+                        </td>
+                        <td class="date-text">{{ ticket.fecha_creacion.strftime('%d/%m/%Y') }}</td>
+                        <td class="actions-cell">
+                            <button class="btn-action btn-view"
+                                onclick="loadContent('view_ticket/{{ ticket.id }}', this)">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            {% if current_user.rol == 'Admin' %}
+                            <button class="btn-action btn-delete" onclick="deleteTicketFromPanel('{{ ticket.id }}')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-tickets">
+                <i class="fas fa-ticket-alt"></i>
+                <h3>No hay tickets</h3>
+                <p>No tienes ningún ticket creado. Crea uno nuevo para obtener soporte.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Búsqueda de tickets
+        document.getElementById('searchTickets').addEventListener('input', function () {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.tickets-table tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+
+        // Función para eliminar ticket (solo admin)
+        function deleteTicketFromPanel(ticketId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este ticket? Esta acción no se puede deshacer.')) {
+                fetch(`/tickets/delete/${ticketId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Recargar la página de tickets
+                            if (typeof loadContent === 'function') {
+                                loadContent('tickets', null);
+                            } else {
+                                location.reload();
+                            }
+                        } else {
+                            alert('Error al eliminar el ticket: ' + (data.error || 'Error desconocido'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error de conexión al eliminar el ticket');
+                    });
+            }
+        }
+    </script>
+</body>
+
+</html>

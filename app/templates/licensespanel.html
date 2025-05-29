@@ -61,7 +61,8 @@
               <a href="#" onclick="loadContent('edit_license/{{ lic.id }}', this)" class="btn-edit">
                 <i class="fas fa-edit"></i> Editar
               </a>
-              <button type="button" class="btn-delete" data-license-id="{{ lic.id }}">
+              <button type="button" class="btn-delete license-delete" data-license-id="{{ lic.id }}"
+                title="Eliminar licencia" onclick="eliminarLicenciaLocal('{{ lic.id }}', this)">
                 <i class="fas fa-trash"></i> Eliminar
               </button>
             </td>
@@ -71,6 +72,7 @@
       </table>
     </div>
   </div>
+
   <script>
     // Búsqueda en tiempo real para licencias
     function activarBuscadorLicencias() {
@@ -89,8 +91,55 @@
       });
     }
 
-    // Si usas AJAX para cargar el panel, llama a activarBuscadorLicencias() después de cargar el contenido:
-    if (typeof activarBuscadorLicencias === "function") {
+    // Función específica para eliminar licencias desde este panel
+    function eliminarLicenciaLocal(licenseId, buttonElement) {
+      if (confirm("¿Estás seguro de que deseas eliminar esta licencia?")) {
+        // Deshabilitar botón y mostrar spinner
+        const originalText = buttonElement.innerHTML;
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        fetch(`/licenses/delete/${licenseId}`, {
+          method: "POST",
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success) {
+              // Recargar el contenido del panel de licencias (igual que en create_license.html)
+              if (typeof loadContent === 'function') {
+                loadContent("licensespanel");
+              } else {
+                location.reload();
+              }
+            } else {
+              alert("Error al eliminar la licencia: " + (data.error || "Error desconocido"));
+              // Restaurar botón
+              buttonElement.disabled = false;
+              buttonElement.innerHTML = originalText;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Hubo un problema al intentar eliminar la licencia.");
+            // Restaurar botón
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = originalText;
+          });
+      }
+    }
+
+    // Activar buscador cuando se carga el contenido
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', activarBuscadorLicencias);
+    } else {
       activarBuscadorLicencias();
     }
   </script>

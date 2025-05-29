@@ -1,0 +1,1022 @@
+:root {
+    --primary: #1a237e;
+    --primary-light: #3949ab;
+    --primary-dark: #0d1642;
+    --accent: #3d5afe;
+    --bg: #0a0e1a;
+    --card-bg: rgba(16, 23, 41, 0.7);
+    --card-bg-hover: rgba(23, 32, 56, 0.8);
+    --overlay: rgba(10, 14, 26, 0.6);
+    --text: #f8f9fc;
+    --text-secondary: #c7d0f0;
+    --muted: #8792bd;
+    --danger: #f44336;
+    --success: #00c853;
+    --warning: #ff9800;
+    --info: #2196f3;
+}
+
+.ticket-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.ticket-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding: 24px;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ticket-header h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 1.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ticket-header i {
+    color: var(--accent);
+}
+
+.btn-back {
+    background: linear-gradient(135deg, var(--muted), #6c757d);
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.ticket-info {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 30px;
+}
+
+.ticket-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.meta-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meta-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.meta-value {
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 600;
+}
+
+.priority-alta {
+    color: var(--danger);
+}
+
+.priority-media {
+    color: var(--warning);
+}
+
+.priority-baja {
+    color: var(--success);
+}
+
+.status-abierto {
+    color: var(--success);
+}
+
+.status-en-progreso {
+    color: var(--warning);
+}
+
+.status-cerrado {
+    color: var(--muted);
+}
+
+.ticket-description {
+    margin-top: 24px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.description-label {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.description-content {
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.messages-section {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title i {
+    color: var(--accent);
+}
+
+.message {
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.message.user-message {
+    background: linear-gradient(135deg, rgba(61, 90, 254, 0.1), rgba(61, 90, 254, 0.05));
+    border-left: 4px solid var(--accent);
+}
+
+.message.admin-message {
+    background: linear-gradient(135deg, rgba(0, 200, 83, 0.1), rgba(0, 200, 83, 0.05));
+    border-left: 4px solid var(--success);
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.message-author {
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.message-author i {
+    font-size: 0.9rem;
+}
+
+.message-date {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.message-content {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.no-messages {
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    padding: 40px;
+}
+
+.new-message-form {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    backdrop-filter: blur(10px);
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(61, 90, 254, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-control::placeholder {
+    color: var(--muted);
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, var(--accent), var(--primary-light));
+    color: white;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(61, 90, 254, 0.2);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(61, 90, 254, 0.3);
+}
+
+.btn-submit:disabled {
+    background: linear-gradient(135deg, var(--muted), #6c757d);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.admin-actions {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-controls {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-group label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.select-control {
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-size: 0.95rem;
+    min-width: 140px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23f8f9fc' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 35px;
+}
+
+.select-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(61, 90, 254, 0.1);
+}
+
+/* Mejorar la visibilidad de las opciones del select */
+.select-control option {
+    background-color: #1a1a2e;
+    color: var(--text);
+    padding: 8px 12px;
+    border: none;
+}
+
+.select-control option:hover {
+    background-color: #16213e;
+    color: var(--text);
+}
+
+.select-control option:checked,
+.select-control option:focus {
+    background-color: var(--accent);
+    color: white;
+}
+
+/* Para mejor compatibilidad con diferentes navegadores */
+.select-control optgroup {
+    background-color: #1a1a2e;
+    color: var(--text);
+    font-weight: bold;
+}
+
+/* Estilos específicos para diferentes valores */
+.select-control option[value="Alta"] {
+    color: var(--danger);
+}
+
+.select-control option[value="Media"] {
+    color: var(--warning);
+}
+
+.select-control option[value="Baja"] {
+    color: var(--success);
+}
+
+.select-control option[value="Abierto"] {
+    color: var(--success);
+}
+
+.select-control option[value="En progreso"] {
+    color: var(--warning);
+}
+
+.select-control option[value="Cerrado"] {
+    color: var(--muted);
+}
+
+.btn-action {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-update {
+    background: linear-gradient(135deg, var(--info), #1976d2);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, var(--danger), #d32f2f);
+    color: white;
+}
+
+.btn-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.alert-message {
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-message.success {
+    background-color: rgba(0, 200, 83, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(0, 200, 83, 0.3);
+}
+
+.alert-message.error {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: var(--danger);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.alert-message.info {
+    background-color: rgba(33, 150, 243, 0.15);
+    color: var(--info);
+    border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+/* ======= RESPONSIVE DESIGN ======= */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+    .ticket-container {
+        padding: 24px;
+    }
+    
+    .ticket-meta {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Desktop/Tablet Large (1024px - 1199px) */
+@media (max-width: 1199px) {
+    .ticket-meta {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Tablet (768px - 1023px) */
+@media (max-width: 1023px) {
+    .ticket-container {
+        padding: 15px;
+    }
+
+    .ticket-header {
+        padding: 20px;
+    }
+
+    .ticket-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .ticket-info, 
+    .messages-section, 
+    .new-message-form, 
+    .admin-actions {
+        padding: 24px;
+    }
+
+    .ticket-meta {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .admin-controls {
+        gap: 16px;
+    }
+}
+
+/* Mobile Large (577px - 767px) */
+@media (max-width: 767px) {
+    .ticket-container {
+        padding: 12px;
+    }
+
+    .ticket-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 18px;
+    }
+
+    .ticket-header h2 {
+        font-size: 1.4rem;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-back {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
+    }
+
+    .ticket-info,
+    .messages-section,
+    .new-message-form,
+    .admin-actions {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .ticket-meta {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .meta-item {
+        padding: 14px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+    }
+
+    .message {
+        padding: 16px;
+    }
+
+    .message-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .message-date {
+        align-self: flex-end;
+    }
+
+    .admin-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .control-group {
+        width: 100%;
+    }
+
+    .select-control {
+        min-width: auto;
+        width: 100%;
+        padding: 12px 14px;
+        background-size: 14px;
+        padding-right: 32px;
+    }
+
+    .btn-action {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+        padding: 16px 24px;
+    }
+
+    .form-control {
+        min-height: 100px;
+    }
+}
+
+/* Mobile Medium (481px - 576px) */
+@media (max-width: 576px) {
+    .ticket-container {
+        padding: 10px;
+    }
+
+    .ticket-header,
+    .ticket-info,
+    .messages-section,
+    .new-message-form,
+    .admin-actions {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .ticket-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .btn-back {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+
+    .meta-item {
+        padding: 12px;
+    }
+
+    .meta-label {
+        font-size: 0.85rem;
+    }
+
+    .meta-value {
+        font-size: 0.95rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .message {
+        padding: 14px;
+        margin-bottom: 16px;
+    }
+
+    .message-author {
+        font-size: 0.9rem;
+    }
+
+    .message-date {
+        font-size: 0.8rem;
+    }
+
+    .message-content {
+        font-size: 0.9rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+        min-height: 90px;
+    }
+
+    .btn-submit {
+        font-size: 1rem;
+        padding: 14px 20px;
+    }
+
+    .select-control {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        background-size: 12px;
+        padding-right: 30px;
+    }
+
+    .select-control option {
+        background-color: #1a1a2e;
+        color: var(--text);
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+
+    .btn-action {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+
+    .alert-message {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+
+    .no-messages {
+        padding: 30px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile Small (321px - 480px) */
+@media (max-width: 480px) {
+    .ticket-container {
+        padding: 8px;
+    }
+
+    .ticket-header,
+    .ticket-info,
+    .messages-section,
+    .new-message-form,
+    .admin-actions {
+        padding: 14px;
+        margin-bottom: 16px;
+    }
+
+    .ticket-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .btn-back {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+
+    .meta-item {
+        padding: 10px;
+    }
+
+    .meta-label {
+        font-size: 0.8rem;
+    }
+
+    .meta-value {
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+    }
+
+    .message {
+        padding: 12px;
+    }
+
+    .message-author {
+        font-size: 0.85rem;
+    }
+
+    .message-date {
+        font-size: 0.75rem;
+    }
+
+    .message-content {
+        font-size: 0.85rem;
+    }
+
+    .form-control {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        min-height: 80px;
+    }
+
+    .btn-submit {
+        font-size: 0.95rem;
+        padding: 12px 18px;
+    }
+
+    .select-control {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        background-size: 10px;
+        padding-right: 28px;
+    }
+
+    .select-control option {
+        padding: 5px 8px;
+        font-size: 0.85rem;
+    }
+
+    .btn-action {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+
+    .alert-message {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    .description-content {
+        font-size: 0.9rem;
+    }
+}
+
+/* Ultra Mobile (below 320px) */
+@media (max-width: 320px) {
+    .ticket-container {
+        padding: 6px;
+    }
+
+    .ticket-header,
+    .ticket-info,
+    .messages-section,
+    .new-message-form,
+    .admin-actions {
+        padding: 12px;
+        margin-bottom: 14px;
+    }
+
+    .ticket-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .btn-back {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .meta-item {
+        padding: 8px;
+    }
+
+    .section-title {
+        font-size: 0.95rem;
+    }
+
+    .message {
+        padding: 10px;
+    }
+
+    .form-control {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        min-height: 70px;
+    }
+
+    .btn-submit {
+        font-size: 0.9rem;
+        padding: 10px 16px;
+    }
+
+    .select-control {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        background-size: 8px;
+        padding-right: 26px;
+    }
+
+    .select-control option {
+        padding: 4px 6px;
+        font-size: 0.8rem;
+    }
+
+    .btn-action {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 767px) and (orientation: landscape) {
+    .ticket-header {
+        flex-direction: row;
+        text-align: left;
+    }
+
+    .ticket-header h2 {
+        flex-direction: row;
+        font-size: 1.3rem;
+    }
+
+    .btn-back {
+        width: auto;
+    }
+
+    .ticket-meta {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .control-group {
+        width: auto;
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+/* High DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .ticket-info,
+    .messages-section,
+    .new-message-form,
+    .admin-actions {
+        border: 0.5px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .select-control {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 40 40'%3e%3cpath stroke='%23f8f9fc' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m12 16 8 8 8-8'/%3e%3c/svg%3e");
+    }
+}
+
+/* Accessibility improvements for small screens */
+@media (max-width: 576px) {
+    .btn-action:focus,
+    .btn-submit:focus,
+    .btn-back:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .form-control:focus,
+    .select-control:focus {
+        box-shadow: 0 0 0 2px rgba(61, 90, 254, 0.3);
+    }
+
+    /* Improve touch targets */
+    .btn-action,
+    .btn-submit,
+    .btn-back {
+        min-height: 44px;
+    }
+
+    .select-control {
+        min-height: 40px;
+    }
+}
+
+/* Mejoras adicionales para diferentes navegadores */
+@-moz-document url-prefix() {
+    .select-control option {
+        background-color: #1a1a2e !important;
+        color: var(--text) !important;
+    }
+}
+
+/* Para navegadores que soportan color-scheme */
+@supports (color-scheme: dark) {
+    .select-control {
+        color-scheme: dark;
+    }
+    
+    .select-control option {
+        background-color: #1a1a2e;
+        color: var(--text);
+    }
+}
+
+/* Print styles */
+@media print {
+    .ticket-container {
+        padding: 0;
+        max-width: none;
+    }
+
+    .btn-back,
+    .admin-actions,
+    .new-message-form {
+        display: none;
+    }
+
+    .ticket-header,
+    .ticket-info,
+    .messages-section {
+        background: white;
+        color: black;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+
+    .select-control option {
+        background: white;
+        color: black;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .form-control,
+    .select-control {
+        font-size: 16px; /* Prevents zoom on focus */
+    }
+
+    @media (max-width: 576px) {
+        .form-control,
+        .select-control {
+            font-size: 16px;
+        }
+    }
+}
+
+/* Android Chrome specific optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .select-control {
+        background-position: right 10px center;
+    }
+}
