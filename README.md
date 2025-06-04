@@ -3,11 +3,14 @@
 <div align="center">
   <img src="app/static/logo.png" alt="Gravity Logo" width="200"/>
   
-  [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-  [![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
-  [![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://mysql.com)
-  [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-purple.svg)](https://openai.com)
-  [![PayPal](https://img.shields.io/badge/PayPal-SDK-blue.svg)](https://developer.paypal.com)
+  [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)  
+  [![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)  
+  [![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://mysql.com)  
+  [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)  
+  [![HTML5](https://img.shields.io/badge/HTML5-E34F26.svg)](https://developer.mozilla.org/en-US/docs/Web/HTML)  
+  [![CSS3](https://img.shields.io/badge/CSS3-1572B6.svg)](https://developer.mozilla.org/en-US/docs/Web/CSS)  
+  [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-purple.svg)](https://openai.com)  
+  [![PayPal](https://img.shields.io/badge/PayPal-SDK-blue.svg)](https://developer.paypal.com)  
 </div>
 
 ## 📋 Descripción
