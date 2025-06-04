@@ -1,137 +1,163 @@
-# TFG-GRAVITY
+# 🌌 Gravity - Sistema de Gestión de Licencias SaaS
 
-¡Bienvenido/a a TFG-GRAVITY!  
-Este proyecto ofrece una aplicación de gestión de licencias de software (al estilo SaaS) que incluye:
+<div align="center">
+  <img src="app/static/logo.png" alt="Gravity Logo" width="200"/>
+  
+  [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+  [![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
+  [![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://mysql.com)
+  [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-purple.svg)](https://openai.com)
+  [![PayPal](https://img.shields.io/badge/PayPal-SDK-blue.svg)](https://developer.paypal.com)
+</div>
 
-• Portal de venta de licencias.  
-• Gestión de usuarios y asignación de licencias.  
-• Sistema de tickets de soporte para dudas o problemas.  
+## 📋 Descripción
 
----
+Gravity es una plataforma web integral diseñada para gestionar todo el ciclo de vida de las licencias de software tipo SaaS. El objetivo principal es centralizar y simplificar la venta, gestión de licencias y administración de usuarios desde un único lugar.
 
-## Tabla de Contenidos
-1. [Descripción General](#descripción-general)  
-2. [Características Principales](#características-principales)  
-3. [Tecnologías Utilizadas](#tecnologías-utilizadas)  
-4. [Requisitos](#requisitos)  
-5. [Instalación](#instalación)  
-6. [Ejecución](#ejecución)  
-7. [Uso de la Aplicación](#uso-de-la-aplicación)  
-8. [Contribución](#contribución)  
-9. [Licencia](#licencia)  
+### ✨ Características Principales
 
----
+- 🔐 **Sistema de Autenticación Robusto** - Control de acceso basado en roles
+- 💳 **Gestión de Licencias** - Tres tipos: Mensual (€9.99), Anual (€99.99), Permanente (€299.99)
+- 💰 **Integración PayPal** - Procesamiento automático de pagos
+- 🎫 **Sistema de Tickets** - Soporte al cliente con prioridades y estados
+- 🤖 **Chatbot IA** - Asistente automatizado 24/7 con OpenAI GPT-4o-mini
+- 👥 **Panel Administrativo** - Gestión completa de usuarios y transacciones
 
-## Descripción General
+## 🏗️ Arquitectura
 
-TFG-GRAVITY es una solución integral para la gestión de licencias, usuarios y tickets de soporte.  
-Su objetivo es brindar una plataforma web que permita a los usuarios:
+```
+Gravity/
+├── app/
+│   ├── models/          # Modelos de datos (Usuario, Licencia, Ticket, etc.)
+│   ├── routes/          # Blueprints de Flask (auth, licenses, tickets, etc.)
+│   ├── services/        # Servicios (chatbot, license management)
+│   ├── templates/       # Templates HTML
+│   ├── static/          # CSS, JS, imágenes
+│   └── config.py        # Configuración de la aplicación
+├── utils/               # Herramientas adicionales (Sherlock)
+└── run.py              # Punto de entrada de la aplicación
+```
 
-• Adquirir y renovar licencias.  
-• Recibir soporte técnico a través de un sistema de tickets.  
-• Adminsitrar usuarios y permisos (para casos de uso con roles Administrador).  
+## 🚀 Instalación y Configuración
 
----
+### Prerrequisitos
 
-## Características Principales
+- Python 3.8+
+- MySQL 8.0+
+- Cuenta de OpenAI (para el chatbot)
+- Cuenta de PayPal Developer (para pagos)
 
-1. **Portal de venta de licencias**  
-   - Interfaz para comprar licencias y procesar pagos (ej. integración PayPal).  
-
-2. **Gestión de licencias y usuarios**  
-   - Crear, asignar y revocar licencias  
-   - Control de fechas de vencimiento y renovaciones  
-   - Panel para que administradores gestionen usuarios (crear, modificar, eliminar)  
-
-3. **Sistema de tickets de soporte**  
-   - Creación y seguimiento de tickets por parte de los usuarios  
-   - Panel administrativo para visualizar y responder tickets  
-
----
-
-## Tecnologías Utilizadas
-
-• **Python** (versión 3.8+)  
-• **Flask** (framework web)  
-• **SQLAlchemy** (ORM para la base de datos)  
-• **HTML**, **CSS**, **JavaScript** (interfaz web)  
-• **Docker** (opcional, para contenedorización)  
-
----
-
-## Requisitos
-
-• Python 3.8 o superior  
-• Gestor de paquetes de Python (pip, pipenv, poetry, etc.)  
-• (Opcional) Docker para despliegue en contenedor  
-
----
-
-## Instalación
+### 1. Clonar el repositorio
 
 ```bash
-# 1. Clonar el repositorio
 git clone https://github.com/ibim4ster/TFG-GRAVITY.git
-
-# 2. Instalar dependencias
 cd TFG-GRAVITY
+```
+
+### 2. Instalar dependencias
+
+```bash
 pip install -r requirements.txt
 ```
 
----
+### 3. Configurar base de datos
 
-## Ejecución
+Crear una base de datos MySQL y actualizar la configuración en `app/config.py`:
+
+```python
+SQLALCHEMY_DATABASE_URI = 'mysql://usuario:contraseña@localhost/gravity'
+```
+
+### 4. Configurar APIs
+
+Actualizar las claves API en `app/config.py`:
+
+```python
+OPENAI_API_KEY = 'tu-clave-openai'
+```
+
+### 5. Ejecutar la aplicación
 
 ```bash
-# 1. Ejecutar la aplicación
 python run.py
-
-# 2. Acceder en el navegador
-# Normalmente, la aplicación escucha en el puerto 5000
-# Visita http://127.0.0.1:5000
 ```
 
-### Ejecución con Docker (Opcional)
+La aplicación estará disponible en `http://localhost:5000`
+
+## 💾 Modelos de Datos
+
+### Licencia
+Gestiona los tres tipos de licencias con estados (Stock, Activa, Suspendida, Expirada) y códigos únicos para activación.
+
+### Sistema de Tickets
+Sistema completo de soporte con prioridades (Alta, Media, Baja) y estados de seguimiento.
+
+### Transacciones PayPal
+Registro detallado de todas las transacciones con trazabilidad completa.
+
+## 🤖 Chatbot IA
+
+El sistema incluye un chatbot especializado que utiliza OpenAI GPT-4o-mini con conocimiento específico sobre las funcionalidades de Gravity y gestión de historial de conversaciones.
+
+## 🎯 Funcionalidades por Rol
+
+### Administrador
+- Gestión completa de usuarios y licencias
+- Panel de transacciones PayPal
+- Asignación y revocación de licencias
+- Gestión de tickets de soporte
+
+### Cliente
+- Compra de licencias (mensual, anual, permanente)
+- Activación por código
+- Creación de tickets de soporte
+- Acceso al chatbot IA
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Backend**: Flask, SQLAlchemy, MySQL
+- **Frontend**: HTML5, CSS3, JavaScript (AJAX)
+- **Autenticación**: Flask-Login, bcrypt
+- **IA**: OpenAI GPT-4o-mini
+- **Pagos**: PayPal SDK
+- **Testing**: pytest
+- **Herramientas**: Sherlock (búsqueda de perfiles)
+
+## 🔧 Desarrollo
+
+### Estructura de Blueprints
+La aplicación utiliza una arquitectura modular con blueprints separados para cada funcionalidad.
+
+### Testing
 
 ```bash
-# 1. Construir la imagen
-docker build -t tfg-gravity .
-
-# 2. Ejecutar el contenedor
-docker run -p 5000:5000 tfg-gravity
+pytest
 ```
 
----
+## 🤝 Contribución
 
-## Uso de la Aplicación
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-1. **Registro e inicio de sesión**  
-   - Los usuarios pueden registrarse e iniciar sesión para comprar y gestionar licencias.  
+## 📄 Licencia
 
-2. **Compra de licencias**  
-   - Al iniciar sesión, se presenta el catálogo de licencias disponibles y opciones de pago.  
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
-3. **Panel de administración (solo usuarios con rol admin)**  
-   - Visualizar y gestionar usuarios, licencias y pedidos de compra.  
+## 👨‍💻 Autor
 
-4. **Soporte al usuario**  
-   - Los usuarios pueden crear tickets solicitando ayuda o reportando problemas.  
-   - El administrador puede responder a dichos tickets y mantener un historial de soporte.  
+**ibim4ster** - [GitHub](https://github.com/ibim4ster)
 
----
+## 🙏 Agradecimientos
 
-## Contribución
-
-1. Haz un **fork** de este repositorio.  
-2. Crea una rama (`git checkout -b feature/nueva-funcion`).  
-3. Realiza tus cambios y haz _commit_.  
-4. Haz _push_ de la rama a tu fork.  
-5. Abre un **pull request** en este repositorio explicando tus mejoras.  
+- OpenAI por la API de GPT-4o-mini
+- PayPal por el SDK de pagos
+- Flask community por el excelente framework
 
 ---
 
-## Licencia
-
-Consulta el archivo `LICENSE` (si existe) para más detalles.  
-
-¡Gracias por tu interés en TFG-GRAVITY!  
+<div align="center">
+  <p>⭐ ¡Dale una estrella si te gusta el proyecto! ⭐</p>
+</div>
