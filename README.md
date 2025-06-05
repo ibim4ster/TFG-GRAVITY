@@ -123,8 +123,7 @@ El sistema incluye un chatbot especializado que utiliza OpenAI GPT-4o-mini con c
 - **IA**: OpenAI GPT-4o-mini
 - **Pagos**: PayPal SDK
 - **Testing**: pytest
-- **Herramientas**: Sherlock (búsqueda de perfiles)
-
+  
 ## 🔧 Desarrollo
 
 ### Estructura de Blueprints
