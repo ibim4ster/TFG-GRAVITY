@@ -37,7 +37,6 @@ Gravity/
 │   ├── templates/       # Templates HTML
 │   ├── static/          # CSS, JS, imágenes
 │   └── config.py        # Configuración de la aplicación
-├── utils/               # Herramientas adicionales (Sherlock)
 └── run.py              # Punto de entrada de la aplicación
 ```
 
